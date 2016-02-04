@@ -1,14 +1,10 @@
 import pygame
 import usb
 
-from controller.PS3 import PS3_Controller
-
 from assets.asset_loader import load_image
 from assets.level_loader import load_level
 
-from sprites.sprite_managers import LayeredDirty_Manager
-
-SCREEN_SIZE = WIDTH, HEIGHT = 640, 480
+from constants import SCREEN_SIZE, OBJECT_MANAGER, SPRITE_MANAGER
 
 
 class DeepStar:
@@ -17,11 +13,6 @@ class DeepStar:
         pygame.init()
         pygame.joystick.init()
         self.joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
-        # self.joystick = eslf.joysticks[0]
-        # self.joystick.init()
-
-        # print(joysticks[0].get_name())
-        # print(pygame.joystick.get_count())
 
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
         pygame.display.set_caption('DeepStar')
@@ -63,20 +54,8 @@ class DeepStar:
         self.screen.blit(self.background, (0, 0))
 
         # init all game objects... // only one list
-        # self.game_objects = Game_Object_Manager()
-
-        self.game_objects = []
+        self.game_objects = OBJECT_MANAGER.instance.list()
         self.game_objects = load_level(self.joysticks)
-
-        self.sprites = LayeredDirty_Manager()
-
-        # add all GOs to spriteList - at this point, all GOs are just dirty sprite objects
-        allSprites = ()
-        for game_object in self.game_objects:
-            allSprites = allSprites + (game_object,)
-
-        self.allSprites = pygame.sprite.LayeredDirty(allSprites)
-        self.allSprites.clear(self.screen, self.background)
 
         self.exit = False
 
@@ -99,53 +78,22 @@ class DeepStar:
         ball.update()
 
     def update(self):
-        for game_object in self.game_objects:
+        for game_object in OBJECT_MANAGER.instance.list():
             game_object.update()
 
     def draw(self):
-        # this will redraw all sprites with dirty=1
-        rects = self.allSprites.draw(self.screen)
+        rects = SPRITE_MANAGER.instance.draw(self.screen)
         pygame.display.update(rects)
 
         # other dirty sprites..
 
-
-
     def run(self):
-        # self.controller.check_status()
-        # if self.check_if_connected():
-        #     print("connected")
-        # else:
-        #     print("not connected")
-        #
-        # if self.joystick.get_init():
-        #     print("we are init")
-        # else:
-        #     print("we are not init")
-        # print(self.joystick.get_numbuttons())
-        # buttons = self.joystick.get_numbuttons()
-        # num_axes = self.joystick.get_numaxes()
-        # print("num axes")
-        # print(num_axes)
-        # self.left_axis = [self.joystick.get_axis(0), self.joystick.get_axis(1)]
-        # self.right_axis = [self.joystick.get_axis(2), self.joystick.get_axis(3)]
-
-        # for i in range(buttons):
-        #     button = self.joystick.get_button(i)
-        #     if button:
-        #
-        #         print(button)
-
+        SPRITE_MANAGER.instance.clear(self.screen, self.background)
+        # allsprites.clear(screen, background)
         while not self.exit:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.exit = True
-            # test joystick axes
-            # outstr = ""
-            # for i in range(0, 4):
-            #     axis = self.joystick.get_axis(i)
-            #     outstr = outstr + str(i) + ":" + str(axis) + "|"
-            #     print(outstr)
 
             self.clock.tick(50)
 

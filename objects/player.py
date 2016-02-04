@@ -3,12 +3,14 @@ import pygame
 from objects.bullet import Bullet
 from assets.asset_loader import load_image
 
+from constants import SPRITE_MANAGER
+
 
 class Player(pygame.sprite.DirtySprite):
 
     def __init__(self, controller, pos=None):
         # call DirtySprite initializer
-        pygame.sprite.DirtySprite.__init__(self)
+        pygame.sprite.DirtySprite.__init__(self, SPRITE_MANAGER.instance)
         self.image, self.rect = load_image("DeepStar_Player.png", -1)
         # if passed a position, move it and mark it dirty..
         if pos is not None:
@@ -27,18 +29,13 @@ class Player(pygame.sprite.DirtySprite):
         return self.rect
 
     def shoot(self):
-        # have to figure out how to spread them out...
         self.can_shoot -= 1
         if self.can_shoot == 0:
-            # shoot
-            Bullet((self.new_x, self.new_y), self.rect)
-
-            self.can_shoot = 10
+            self.can_shoot = 15
+            if self.new_x != 0 or self.new_y != 0:
+                Bullet((self.new_x, self.new_y), (self.rect.x, self.rect.y))
 
     def move(self, left=None, right=None, top=None, bottom=None):
-        # if left is None and right is None and top is None and bottom is None:
-        #     pos = pygame.mouse.get_pos()
-        #     self.rect.center = pos
         if left:
             self.rect.left += left
             if self.rect.left < 0:
@@ -63,3 +60,4 @@ class Player(pygame.sprite.DirtySprite):
     def update(self):
         self.new_x, self.new_y = self.joystick.get_right_axis()
         self.move()
+        self.shoot()

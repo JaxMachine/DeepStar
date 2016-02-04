@@ -1,7 +1,7 @@
 import pygame
-import time
-import os
 import usb
+import os
+import sys
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
@@ -15,13 +15,13 @@ class PS3_Controller:
         self.joystick = joystick
         self.joystick.init()
         self.buttons = self.joystick.get_numbuttons()
-        # self.left_axis = [self.joystick.get_axis(0), self.joystick.get_axis(1)]
+        print("HERE AGAINNNNNNNNNNNNN")
         self.right_axis = [self.joystick.get_axis(2), self.joystick.get_axis(3)]
 
     def update_axis(self):
+        print("shouldn't see me")
         if self.joystick is not None:
             try:
-                # self.left_axis = [self.joystick.get_axis(0), self.joystick.get_axis(1)]
                 self.right_axis = [self.joystick.get_axis(2), self.joystick.get_axis(3)]
             except pygame.error:
                 print("Axis Error")
@@ -32,7 +32,11 @@ class PS3_Controller:
         return False
 
     def get_right_axis(self):
+
+        sys.stdout = open('log.text', 'w')
         self.update_axis()
+        sys.stdout.close()
+        sys.stdout = sys.__stdout__
         if self.right_axis is not None:
             return self.right_axis
         else:
