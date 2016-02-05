@@ -7,12 +7,13 @@ import os
 from assets.asset_loader import load_image
 from assets.level_loader import load_level
 
-from constants import SCREEN_SIZE, OBJECT_MANAGER, SPRITE_MANAGER
+from constants import SCREEN_SIZE, OBJECT_MANAGER, SPRITE_MANAGER, BULLET_MANAGER, PLANET_MANAGER
 
 
 class DeepStar:
 
     def __init__(self):
+        pygame.mixer.pre_init(44100, -16, 2, 2048)
         pygame.init()
         pygame.joystick.init()
         self.joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
@@ -54,7 +55,7 @@ class DeepStar:
             print("not connected")
 
         # create the background, blit it to the screen...
-        self.background, self.background_pos = load_image("Big_background.jpg")
+        self.background, self.background_pos = load_image("Map.png")
         self.screen.blit(self.background, (0, 0))
 
         # init all game objects... // only one list
@@ -64,19 +65,19 @@ class DeepStar:
         self.exit = False
 
     def check_inputs(self):
-        self.cur_mouse_pos = pygame.mouse.get_pos()
+         # self.cur_mouse_pos = pygame.mouse.get_pos()
         ball = self.game_objects[0]
 
-        keys = pygame.key.get_pressed()
+        # keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_a]:
-            ball.move(left=-5)
-        if keys[pygame.K_d]:
-            ball.move(right=5)
-        if keys[pygame.K_w]:
-            ball.move(top=-5)
-        if keys[pygame.K_s]:
-            ball.move(bottom=5)
+        # if keys[pygame.K_a]:
+        #     ball.move(left=-5)
+        # if keys[pygame.K_d]:
+        #     ball.move(right=5)
+        # if keys[pygame.K_w]:
+        #     ball.move(top=-5)
+        # if keys[pygame.K_s]:
+        #     ball.move(bottom=5)
 
         # cycle through game objects controllers, if you have a controller, update
         ball.update()
@@ -85,9 +86,9 @@ class DeepStar:
         for game_object in OBJECT_MANAGER.instance.list():
             f = open("log3", 'a')
             sys.stdout = f
-            if game_object.name == "player":
-                print("updating player")
-            print(game_object.name)
+            # if game_object.name == "player":
+            #     print("updating player")
+            # print(game_object.name)
             game_object.update()
             f.close()
             sys.stdout = sys.__stdout__

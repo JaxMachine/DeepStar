@@ -1,5 +1,6 @@
 import os
 import pygame
+# from pygame.locals import *
 from pygame.compat import geterror
 
 # game object imports
@@ -9,6 +10,7 @@ from pygame.compat import geterror
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, 'images/')
+sound_dir = os.path.join(main_dir, 'sounds/')
 
 
 def load_image(name, colorkey=None):
@@ -18,7 +20,7 @@ def load_image(name, colorkey=None):
     except pygame.error:
         raise SystemExit(str(geterror()))
     image = image.convert()
-    
+
     if colorkey is not None:
         if colorkey is -1:
             # sets color key to color found at 0,0  in the image. that's actually pretty clever.
@@ -27,11 +29,10 @@ def load_image(name, colorkey=None):
     return image, image.get_rect()
 
 
-# def load_level():
-#     object_list = []
-#
-#     # create player object at the center of the level...
-#     player = Player((WIDTH/2, HEIGHT/2))
-#     object_list.append(player)
-#
-#     return object_list
+def load_sound(name):
+    filename = os.path.join(sound_dir, name)
+    try:
+        sound = pygame.mixer.Sound(os.path.join(filename))
+    except pygame.error:
+        raise "could not load or play sound file found in /sounds folder"
+    return sound

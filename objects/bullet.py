@@ -2,7 +2,7 @@ import pygame
 
 from maths.vector import Vector
 from assets.asset_loader import load_image
-from constants import OBJECT_MANAGER, SPRITE_MANAGER
+from constants import OBJECT_MANAGER, SPRITE_MANAGER, BULLET_MANAGER
 
 
 class Bullet(pygame.sprite.DirtySprite):
@@ -21,9 +21,12 @@ class Bullet(pygame.sprite.DirtySprite):
 
         self.delete = False
         self.name = "Bullet"
+        self.radius = self.rect.centerx - self.rect.x
         OBJECT_MANAGER.instance.add(self)
+        BULLET_MANAGER.instance.add(self)
         self.dirty = 1
         self.speed = 5
+        self.collided = False
 
     def get_rect(self):
         return self.rect

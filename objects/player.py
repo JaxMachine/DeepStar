@@ -1,12 +1,13 @@
 import pygame
 # from pygame.locals import *
 import sys
+from assets.asset_loader import load_sound
 from objects.bullet import Bullet
 from assets.asset_loader import load_image
 
 from maths.vector import Vector
 
-from constants import SPRITE_MANAGER
+from constants import SPRITE_MANAGER, PLANET_MANAGER
 
 
 class Player(pygame.sprite.DirtySprite):
@@ -28,14 +29,19 @@ class Player(pygame.sprite.DirtySprite):
         self.can_shoot = 1
 
         self.pos = Vector(self.rect.x, self.rect.y)
+        self.old_position = self.pos
         self.trajectory = Vector(0, 0)
         self.updated_trajectory = False
+
+        self.radius = self.rect.x = self.rect.centerx
 
         # new code
         self.vspeed = 0
         self.hspeed = 0
         self.old_hspeed = 0
         self.old_vspeed = 0
+
+        self.fire_sound = load_sound("321102__nsstudios__laser1.wav")
 
     def get_rect(self):
         return self.rect
@@ -46,6 +52,7 @@ class Player(pygame.sprite.DirtySprite):
             self.can_shoot = 5
             if self.new_x != 0 or self.new_y != 0:
                 Bullet((self.new_x, self.new_y), (self.rect.x, self.rect.y))
+                self.fire_sound.play()
 
                 self.old_hspeed = self.hspeed
                 self.old_vspeed = self.vspeed
@@ -62,31 +69,31 @@ class Player(pygame.sprite.DirtySprite):
         out = "{0}: ({1}, {2})".format(name, vector.x, vector.y)
         print(out)
 
-    def move(self, left=None, right=None, top=None, bottom=None):
-        if left:
-            self.rect.left += left
-            if self.rect.left < 0:
-                self.rect.left = 0
-        if right:
-            self.rect.right += right
-            if self.rect.right > 640:
-                self.rect.right = 640
-        if top:
-            self.rect.top += top
-            if self.rect.top < 0:
-                self.rect.top = 0
-        if bottom:
-            self.rect.bottom += bottom
-            if self.rect.bottom > 480:
-                self.rect.bottom = 480
-
+    def move(self):
         self.rect.x = self.pos.x
         self.rect.y = self.pos.y
+
         self.dirty = 1
 
     def _get_new_pos(self):
         new = self.pos - self.trajectory
-        self.pos += (new - self.pos).normal().mult(self.hspeed, self.vspeed)
+        new_pos = self.pos
+        new_pos += (new - new_pos).normal().mult(self.hspeed, self.vspeed)
+
+        # check to see if that new position collides....
+        self.rect.x = new_pos.x
+        self.rect.y = new_pos.y
+        collide = pygame.sprite.spritecollideany(
+            self, PLANET_MANAGER.instance, pygame.sprite.collide_circle
+        )
+        if collide is not None:
+            self.hspeed = (self.hspeed * -1)/1.25
+            self.vspeed = (self.vspeed * -1)/1.25
+            # set rect back to old position
+            self.rect.x = self.pos.x
+            self.rect.y = self.pos.y
+        else:
+            self.pos = new_pos
         return self.pos
 
     def update_trajectory(self):
