@@ -4,6 +4,10 @@ import usb
 import sys
 import os
 
+
+pygame.mixer.pre_init(44100, -16, 2, 2048)
+pygame.init()
+
 from assets.asset_loader import load_image
 from assets.level_loader import load_level
 
@@ -65,22 +69,8 @@ class DeepStar:
         self.exit = False
 
     def check_inputs(self):
-         # self.cur_mouse_pos = pygame.mouse.get_pos()
-        ball = self.game_objects[0]
-
-        # keys = pygame.key.get_pressed()
-
-        # if keys[pygame.K_a]:
-        #     ball.move(left=-5)
-        # if keys[pygame.K_d]:
-        #     ball.move(right=5)
-        # if keys[pygame.K_w]:
-        #     ball.move(top=-5)
-        # if keys[pygame.K_s]:
-        #     ball.move(bottom=5)
-
-        # cycle through game objects controllers, if you have a controller, update
-        ball.update()
+        player = self.game_objects[0]
+        player.update()
 
     def update(self):
         for game_object in OBJECT_MANAGER.instance.list():

@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 
 from assets.asset_loader import load_image
-from constants import SPRITE_MANAGER, OBJECT_MANAGER, PLANET_MANAGER, BULLET_MANAGER
+from constants import SPRITE_MANAGER, OBJECT_MANAGER, PLANET_MANAGER, BULLET_MANAGER, SND_IMPACT
 
 
 class Planet(pygame.sprite.DirtySprite):
@@ -49,4 +49,5 @@ class Planet(pygame.sprite.DirtySprite):
         if len(bullets) != 0:
             print("WE HAVE COLLIDED")
         for bullet in bullets:
+            SND_IMPACT.play()
             bullet.delete = True

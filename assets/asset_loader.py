@@ -31,6 +31,7 @@ def load_image(name, colorkey=None):
 
 def load_sound(name):
     filename = os.path.join(sound_dir, name)
+    print(filename)
     try:
         sound = pygame.mixer.Sound(os.path.join(filename))
     except pygame.error:

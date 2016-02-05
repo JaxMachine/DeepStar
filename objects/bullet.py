@@ -55,4 +55,6 @@ class Bullet(pygame.sprite.DirtySprite):
         if self.delete:
             OBJECT_MANAGER.instance.remove(self)
             self.kill()
+
+
         self.move()

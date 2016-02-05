@@ -42,6 +42,7 @@ class Player(pygame.sprite.DirtySprite):
         self.old_vspeed = 0
 
         self.fire_sound = load_sound("321102__nsstudios__laser1.wav")
+        self.can_move = 1
 
     def get_rect(self):
         return self.rect
@@ -50,20 +51,20 @@ class Player(pygame.sprite.DirtySprite):
         self.can_shoot -= 1
         if self.can_shoot == 0:
             self.can_shoot = 5
-            if self.new_x != 0 or self.new_y != 0:
-                Bullet((self.new_x, self.new_y), (self.rect.x, self.rect.y))
+            if self.new_b_x != 0 or self.new_b_y != 0:
+                Bullet((self.new_b_x, self.new_b_y), (self.rect.x, self.rect.y))
                 self.fire_sound.play()
 
-                self.old_hspeed = self.hspeed
-                self.old_vspeed = self.vspeed
-                if self.new_x > 0:
-                    self.hspeed += .2
-                else:
-                    self.hspeed -= .2
-                if self.new_y > 0:
-                    self.vspeed += .2
-                else:
-                    self.vspeed -= .2
+                # self.old_hspeed = self.hspeed
+                # self.old_vspeed = self.vspeed
+                # if self.new_x > 0:
+                #     self.hspeed += .2
+                # else:
+                #     self.hspeed -= .2
+                # if self.new_y > 0:
+                #     self.vspeed += .2
+                # else:
+                #     self.vspeed -= .2
 
     def pn(self, name, vector):
         out = "{0}: ({1}, {2})".format(name, vector.x, vector.y)
@@ -105,29 +106,51 @@ class Player(pygame.sprite.DirtySprite):
         return self.pos
 
     def update_trajectory(self):
-        self.new_x, self.new_y = self.joystick.get_right_axis()
+        # self.new_x, self.new_y = self.joystick.get_right_axis()
+        self.can_move -= 1
 
-        if self.new_x != 0 or self.new_y != 0:
-            if self.trajectory.x == 0:
-                self.trajectory.x = self.new_x
-            if self.trajectory.y == 0:
-                self.trajectory.y = self.new_y
+        left, right = self.joystick.get_axes()
+        self.new_b_x, self.new_b_y = right
 
-            if self.old_hspeed > 0 and self.hspeed < 0:  # that means we have switched directions, get a new trajecorty
-                self.trajectory.x = self.new_x
-            elif self.old_hspeed < 0 and self.hspeed > 0:  # that means we have switched directios, get a new trajectory
-                self.trajectory.x = self.new_x
+        self.new_x, self.new_y = left
 
-            if self.old_vspeed > 0 and self.vspeed < 0:  # that means we have switched directions, get a new trajecorty
-                self.trajectory.y = self.new_y
-            elif self.old_vspeed < 0 and self.vspeed > 0:  # that means we have switched directios, get a new trajectory
-                self.trajectory.y = self.new_y
+        if self.can_move == 0:
+            self.can_move = 5
+            if self.new_x != 0 or self.new_y != 0:
 
-            if self.trajectory.x < 0:
-                self.trajectory.x *= -1
-            if self.trajectory.y < 0:
-                self.trajectory.y *= -1
-            self.updated_trajectory = True
+                self.old_hspeed = self.hspeed
+                self.old_vspeed = self.vspeed
+                if self.new_x > 0:
+                    self.hspeed += .2
+                else:
+                    self.hspeed -= .2
+                if self.new_y > 0:
+                    self.vspeed += .2
+                else:
+                    self.vspeed -= .2
+
+                if self.trajectory.x == 0:
+                    self.trajectory.x = self.new_x
+                if self.trajectory.y == 0:
+                    self.trajectory.y = self.new_y
+
+                if self.old_hspeed > 0 and self.hspeed < 0:  # that means we have switched directions, get a new trajecorty
+                    self.trajectory.x = self.new_x
+                elif self.old_hspeed < 0 and self.hspeed > 0:  # that means we have switched directios, get a new trajectory
+                    self.trajectory.x = self.new_x
+
+                if self.old_vspeed > 0 and self.vspeed < 0:  # that means we have switched directions, get a new trajecorty
+                    self.trajectory.y = self.new_y
+                elif self.old_vspeed < 0 and self.vspeed > 0:  # that means we have switched directios, get a new trajectory
+                    self.trajectory.y = self.new_y
+
+                if self.trajectory.x < 0:
+                    self.trajectory.x *= -1
+                if self.trajectory.y < 0:
+                    self.trajectory.y *= -1
+                self.updated_trajectory = True
+
+
 
     def update(self):
         self.update_trajectory()
