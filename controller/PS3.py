@@ -15,6 +15,7 @@ class PS3_Controller:
         self.joystick = joystick
         self.joystick.init()
         self.buttons = self.joystick.get_numbuttons()
+        self.left_axis = [self.joystick.get_axis(0), self.joystick.get_axis(1)]
         self.right_axis = [self.joystick.get_axis(2), self.joystick.get_axis(3)]
 
     def update_axis(self):

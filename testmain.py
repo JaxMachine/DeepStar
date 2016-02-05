@@ -11,7 +11,9 @@ pygame.init()
 from assets.asset_loader import load_image
 from assets.level_loader import load_level
 
-from constants import SCREEN_SIZE, OBJECT_MANAGER, SPRITE_MANAGER, BULLET_MANAGER, PLANET_MANAGER
+from objects.player import Player
+
+from constants import SCREEN_SIZE, OBJECT_MANAGER, SPRITE_MANAGER, SND_BACKGROUND
 
 
 class DeepStar:
@@ -21,6 +23,8 @@ class DeepStar:
         pygame.init()
         pygame.joystick.init()
         self.joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
+
+
 
         # self.screen = pygame.display.set_mode(SCREEN_SIZE, HWSURFACE | DOUBLEBUF | RESIZABLE)
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
@@ -51,8 +55,6 @@ class DeepStar:
     # initialize game objects, etc..
     def init_game(self):
         # set game constants
-        self.prev_mouse_pos = (0, 0)
-        # self.controller = PS3_Controller(self.screen)
         if self.check_if_connected():
             print("conntected")
         else:
@@ -63,14 +65,17 @@ class DeepStar:
         self.screen.blit(self.background, (0, 0))
 
         # init all game objects... // only one list
-        self.game_objects = OBJECT_MANAGER.instance.list()
-        self.game_objects = load_level(self.joysticks)
+        # self.game_objects = OBJECT_MANAGER.instance.list()
+        # self.game_objects = load_level(self.joysticks)
+        # OBJECT_MANAGER.instance.list() = load_level(self.joysticks)
+        load_level(self.joysticks)
+
 
         self.exit = False
 
-    def check_inputs(self):
-        player = self.game_objects[0]
-        player.update()
+    # def check_inputs(self):
+        # player = self.game_objects[0]
+        # player.update()
 
     def update(self):
         for game_object in OBJECT_MANAGER.instance.list():
@@ -100,12 +105,16 @@ class DeepStar:
                 #     self.screen = pygame.display.set_mode(event.dict['size'], HWSURFACE | DOUBLEBUF | RESIZABLE)
                 #     self.screen.blit(pygame.transform.scale(self.background, event.dict['size']), (0, 0))
 
-            self.clock.tick(50)
+            # if not PLAYERS[0]:
+            #     Player("DeepStar_Player.png", controller_two, (WIDTH-100, HEIGHT/2))
+            # else:
+            #     Player("DeepStar_Player2.png", controller_one, (100, HEIGHT/2))
 
-            # get player inputs..
-            self.check_inputs()
+            self.clock.tick(50)
             self.update()
             self.draw()
+
+
 
         pygame.quit()
 

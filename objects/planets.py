@@ -8,7 +8,7 @@ from constants import SPRITE_MANAGER, OBJECT_MANAGER, PLANET_MANAGER, BULLET_MAN
 class Planet(pygame.sprite.DirtySprite):
 
     def __init__(self, image, pos=None):
-        pygame.sprite.DirtySprite.__init__(self, SPRITE_MANAGER.instance)
+        pygame.sprite.DirtySprite.__init__(self)
         self.image, self.rect = load_image(image, -1)
 
         if pos is not None:

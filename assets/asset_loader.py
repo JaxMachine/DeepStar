@@ -12,6 +12,9 @@ main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, 'images/')
 sound_dir = os.path.join(main_dir, 'sounds/')
 
+pygame.mixer.pre_init(44100, -16, 2, 2048)
+pygame.init()
+
 
 def load_image(name, colorkey=None):
     filename = os.path.join(data_dir, name)
@@ -36,4 +39,17 @@ def load_sound(name):
         sound = pygame.mixer.Sound(os.path.join(filename))
     except pygame.error:
         raise "could not load or play sound file found in /sounds folder"
+    sound.set_volume(.25)
     return sound
+
+
+def load_music(name):
+    print("load music")
+    filename = os.path.join(sound_dir, name)
+    print(filename)
+    try:
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.set_volume(1)
+        pygame.mixer.music.play(-1)
+    except:
+        raise "could not load or play music file found in /sounds folder"

@@ -35,3 +35,31 @@ class BulletGroup():
     def __init__(self):
         if not BulletGroup.instance:
             BulletGroup.instance = BulletGroup.__BulletGroup()
+
+
+class GroupWithOwner(pygame.sprite.Group):
+
+        def __init__(self, owner):
+            pygame.sprite.Group.__init__(self)
+            self.owner = owner
+
+
+class BulletGroupManager():
+    class __BulletGroupManager():
+        def __init__(self):
+            self.b_list = []
+
+        def list(self):
+            return self.b_list
+
+        def add(self, bullet_group):
+            self.b_list.append(bullet_group)
+
+        def remove(self, bullet_group):
+            self.b_list.remove(bullet_group)
+
+    instance = None
+
+    def __init__(self):
+        if not BulletGroupManager.instance:
+            BulletGroupManager.instance = BulletGroupManager.__BulletGroupManager()
