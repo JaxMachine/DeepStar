@@ -92,6 +92,14 @@ class Player(pygame.sprite.DirtySprite):
             # set rect back to old position
             self.rect.x = self.pos.x
             self.rect.y = self.pos.y
+        elif new_pos.x > 1280 or new_pos.x < 0:
+            self.rect.x = self.pos.x
+            self.rect.y = self.pos.y
+            self.hspeed = (self.hspeed * -1)/1.25
+        elif new_pos.y > 720 or new_pos.y < 0:
+            self.rect.x = self.pos.x
+            self.rect.y = self.pos.y
+            self.vspeed = (self.vspeed * -1)/1.25
         else:
             self.pos = new_pos
         return self.pos

@@ -12,7 +12,7 @@ def load_level(joysticks):
 
     controller = PS3_Controller(joysticks[0])
 
-    player = Player(controller, (0, 0))
+    player = Player(controller, (100, 100))
     object_list.append(player)
 
     seed_p = Planet("SeedPlanet_Solid.png", (1038, 144))
