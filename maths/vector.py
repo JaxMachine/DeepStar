@@ -20,6 +20,9 @@ class Vector:
     def __mul__(self, scalar):
         return Vector(self.x * scalar, self.y * scalar)
 
+    def mult(self, scalarx, scalary):
+        return Vector(self.x * scalarx, self.y * scalary)
+
     def __div__(self, scalar):
         return Vector(self.x / scalar, self.y / scalar)
 

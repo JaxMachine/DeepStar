@@ -1,5 +1,8 @@
 import pygame
+from pygame.locals import *
 import usb
+import sys
+import os
 
 from assets.asset_loader import load_image
 from assets.level_loader import load_level
@@ -14,6 +17,7 @@ class DeepStar:
         pygame.joystick.init()
         self.joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
 
+        # self.screen = pygame.display.set_mode(SCREEN_SIZE, HWSURFACE | DOUBLEBUF | RESIZABLE)
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
         pygame.display.set_caption('DeepStar')
 
@@ -50,7 +54,7 @@ class DeepStar:
             print("not connected")
 
         # create the background, blit it to the screen...
-        self.background, self.background_pos = load_image("background.jpg")
+        self.background, self.background_pos = load_image("Big_background.jpg")
         self.screen.blit(self.background, (0, 0))
 
         # init all game objects... // only one list
@@ -79,7 +83,14 @@ class DeepStar:
 
     def update(self):
         for game_object in OBJECT_MANAGER.instance.list():
+            f = open("log3", 'a')
+            sys.stdout = f
+            if game_object.name == "player":
+                print("updating player")
+            print(game_object.name)
             game_object.update()
+            f.close()
+            sys.stdout = sys.__stdout__
 
     def draw(self):
         rects = SPRITE_MANAGER.instance.draw(self.screen)
@@ -94,6 +105,9 @@ class DeepStar:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.exit = True
+                # elif event.type == VIDEORESIZE:
+                #     self.screen = pygame.display.set_mode(event.dict['size'], HWSURFACE | DOUBLEBUF | RESIZABLE)
+                #     self.screen.blit(pygame.transform.scale(self.background, event.dict['size']), (0, 0))
 
             self.clock.tick(50)
 

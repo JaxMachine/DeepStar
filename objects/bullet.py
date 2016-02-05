@@ -1,6 +1,4 @@
 import pygame
-import time
-
 
 from maths.vector import Vector
 from assets.asset_loader import load_image
@@ -22,6 +20,7 @@ class Bullet(pygame.sprite.DirtySprite):
             self.pos = Vector(self.rect.x, self.rect.y)
 
         self.delete = False
+        self.name = "Bullet"
         OBJECT_MANAGER.instance.add(self)
         self.dirty = 1
         self.speed = 5
@@ -34,20 +33,18 @@ class Bullet(pygame.sprite.DirtySprite):
         self.pos += (new - self.pos).normal() * self.speed
         return self.pos
 
-
-
     def move(self):
         new_pos = self._get_new_pos(self.trajectory)
         self.rect.x = new_pos.x
         self.rect.y = new_pos.y
 
-        if self.rect.right > 540:
+        if self.rect.right > 1280:
             self.delete = True
-        if self.rect.left < 100:
+        if self.rect.left < -20:
             self.delete = True
-        if self.rect.top < 100:
+        if self.rect.top < -20:
             self.delete = True
-        if self.rect.bottom > 380:
+        if self.rect.bottom > 720:
             self.delete = True
         self.dirty = 1
 
