@@ -1,18 +1,17 @@
-import pygame
 
 from sprites.sprite_managers import LayeredDirty_Manager, BulletGroup, PlanetGroup, BulletGroupManager
-from objects.object_managers import G_Object_Manager
+from objects.object_managers import SingletonList
 from assets.asset_loader import load_sound, load_music
 
 SCREEN_SIZE = WIDTH, HEIGHT = 1280, 720
 
 SPRITE_MANAGER = LayeredDirty_Manager()
-OBJECT_MANAGER = G_Object_Manager()
+OBJECT_MANAGER = SingletonList().instance
 
 PLANET_MANAGER = PlanetGroup()
 BULLET_MANAGER = BulletGroup()
 
-BULLET_GROUP_MANAGER = BulletGroupManager()
+BULLET_GROUP_MANAGER = []   # BulletGroupManager()
 
 # SOUNDS
 SND_IMPACT = load_sound("impact.wav")

@@ -11,9 +11,7 @@ pygame.init()
 from assets.asset_loader import load_image
 from assets.level_loader import load_level
 
-from objects.player import Player
-
-from constants import SCREEN_SIZE, OBJECT_MANAGER, SPRITE_MANAGER, SND_BACKGROUND
+from constants import SCREEN_SIZE, OBJECT_MANAGER, SPRITE_MANAGER
 
 
 class DeepStar:

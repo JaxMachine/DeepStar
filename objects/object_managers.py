@@ -1,21 +1,20 @@
-
-
-class G_Object_Manager():
-    class __G_Object_Manager():
+# singleton class to hold a list of objects,
+class SingletonList():
+    class __SingletonList():
         def __init__(self):
-            self.g_list = []
+            self.l_list = []
 
         def list(self):
-            return self.g_list
+            return self.l_list
 
-        def add(self, g_object):
-            self.g_list.append(g_object)
+        def add(self, l_object):
+            self.l_list.append(l_object)
 
-        def remove(self, g_object):
-            self.g_list.remove(g_object)
+        def remove(self, l_object):
+            self.l_list.remove(l_object)
 
     instance = None
 
     def __init__(self):
-        if not G_Object_Manager.instance:
-            G_Object_Manager.instance = G_Object_Manager.__G_Object_Manager()
+        if not SingletonList.instance:
+            SingletonList.instance = SingletonList.__SingletonList()

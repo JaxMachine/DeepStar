@@ -17,6 +17,50 @@ BULLET_DMG = 10
 
 class Player(pygame.sprite.DirtySprite):
 
+    def __init__(self, sprite_name, controller, pos=None):
+        # call DirtySprite initializer
+        pygame.sprite.DirtySprite.__init__(self, SPRITE_MANAGER.instance)
+        self.image, self.rect = load_image(sprite_name, -1)
+        OBJECT_MANAGER.instance.add(self)
+        self.name = sprite_name
+        self.delete = False
+
+        if pos is not None:
+            self.old_position = pos
+            self.rect.center = pos
+            self.dirty = 1
+        self.name = sprite_name
+
+        # make sure controller is initialized
+        self.joystick = controller
+        if not self.joystick.get_init():
+            self.joystick.init()
+
+        self.new_x = 0
+        self.new_y = 0
+        self.can_shoot = 1
+        self.can_move = 1
+
+        self.pos = Vector(self.rect.x, self.rect.y)
+        # self.old_position = self.pos
+        self.trajectory = Vector(0, 0)
+        self.updated_trajectory = False
+
+        self.radius = self.rect.x - self.rect.centerx
+
+        self.vspeed = 0
+        self.hspeed = 0
+        self.old_hspeed = 0
+        self.old_vspeed = 0
+
+        self.fire_sound = load_sound("321102__nsstudios__laser1.wav")
+
+        self.health = HEALTH
+        self.bullet_group = GroupWithOwner(owner=self.name)
+        BULLET_GROUP_MANAGER.append(self.bullet_group)
+        # f.close()
+        # sys.stdout = sys.__stdout__
+
     def reset(self):
         self.rect.center = self.old_position
         self.pos = Vector(self.rect.x, self.rect.y)
@@ -34,55 +78,6 @@ class Player(pygame.sprite.DirtySprite):
         self.health = HEALTH
         self.dirty = 1
         SPRITE_MANAGER.instance.add(self)
-
-    def __init__(self, sprite_name, controller, pos=None):
-        f = open("log3", 'a')
-        sys.stdout = f
-        # call DirtySprite initializer
-        pygame.sprite.DirtySprite.__init__(self, SPRITE_MANAGER.instance)
-        self.name = sprite_name
-        self.delete = False
-        self.image, self.rect = load_image(sprite_name, -1)
-        OBJECT_MANAGER.instance.add(self)
-        if pos is not None:
-            self.old_position = pos
-            self.rect.center = pos
-            self.dirty = 1
-        self.name = sprite_name
-        # make sure controller is initialized
-        self.joystick = controller
-        if not self.joystick.get_init():
-            self.joystick.init()
-        self.new_x = 0
-        self.new_y = 0
-        self.can_shoot = 1
-
-        self.pos = Vector(self.rect.x, self.rect.y)
-        # self.old_position = self.pos
-        self.trajectory = Vector(0, 0)
-        self.updated_trajectory = False
-
-        self.radius = self.rect.x - self.rect.centerx
-
-        # new code
-        self.vspeed = 0
-        self.hspeed = 0
-        self.old_hspeed = 0
-        self.old_vspeed = 0
-
-        self.fire_sound = load_sound("321102__nsstudios__laser1.wav")
-        self.can_move = 1
-
-        self.health = HEALTH
-        self.bullet_group = GroupWithOwner(owner=self.name)
-        print(self.bullet_group.owner)
-        BULLET_GROUP_MANAGER.instance.add(self.bullet_group)
-        print(self.name)
-        print("length of BULLET_GROUP_MANAGER: ", len(BULLET_GROUP_MANAGER.instance.list()))
-        for group in BULLET_GROUP_MANAGER.instance.list():
-            print("group owner: ", group.owner)
-        f.close()
-        sys.stdout = sys.__stdout__
 
     def get_rect(self):
         return self.rect
@@ -118,10 +113,6 @@ class Player(pygame.sprite.DirtySprite):
             self, PLANET_MANAGER.instance, pygame.sprite.collide_circle
         )
         if collide is not None:
-            # print("x: %s,  y: %s", self.rect.x, self.rect.y)
-            # print("we are colliding with planetTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT: ", new_pos.x)
-            # print(new_pos.y)
-
             self.hspeed = (self.hspeed * -1)/1.25
             self.vspeed = (self.vspeed * -1)/1.25
             # set rect back to old position
@@ -186,12 +177,7 @@ class Player(pygame.sprite.DirtySprite):
                 self.updated_trajectory = True
 
     def collide_with_bullet(self):
-        print(len(BULLET_GROUP_MANAGER.instance.list()))
-        for group in BULLET_GROUP_MANAGER.instance.list():
-            print("prinitng owner")
-            print(group.owner)
-            print("printing my name")
-            print(self.name)
+        for group in BULLET_GROUP_MANAGER:
             if group != self.bullet_group:
                 bullets = pygame.sprite.spritecollide(
                     self, group, False, pygame.sprite.collide_circle)
@@ -204,7 +190,6 @@ class Player(pygame.sprite.DirtySprite):
 
     def update(self):
         if self.delete:
-            # OBJECT_MANAGER.instance.remove(self)
             self.kill()
             SND_DEATH.play()
             self.reset()
