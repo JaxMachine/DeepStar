@@ -2,7 +2,7 @@ from objects.player import Player
 from objects.planets import Planet
 from controller.PS3 import PS3_Controller
 
-from constants import WIDTH, HEIGHT
+from constants import HEIGHT
 
 
 def load_level(joysticks):

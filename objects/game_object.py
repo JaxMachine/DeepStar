@@ -8,9 +8,9 @@ from sprites.sprite import BaseSprite
 
 class BaseObject(BaseSprite):
 
-    def __init__(self, sprite_name, pos=None):
-        BaseSprite.__init__(self, sprite_name)
-        OBJECT_MANAGER.add(self)
+    def __init__(self, sprite_name, pos=None, sprite_group=None):
+        BaseSprite.__init__(self, sprite_name, sprite_group)
+        OBJECT_MANAGER.instance.add(self)
 
         if pos is not None:
             self.rect.center = pos
@@ -24,6 +24,6 @@ class BaseObject(BaseSprite):
         self.dirty = 1
 
     def delete(self, remove=True):
-        super(BaseSprite, self).delete()
+        super(BaseObject, self).delete()
         if remove:
-            OBJECT_MANAGER.remove(self)
+            OBJECT_MANAGER.instance.remove(self)

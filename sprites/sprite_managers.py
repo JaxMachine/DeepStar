@@ -39,9 +39,11 @@ class BulletGroup():
 
 class GroupWithOwner(pygame.sprite.Group):
 
-        def __init__(self, owner):
+        def __init__(self, owner, group_manager=None):
             pygame.sprite.Group.__init__(self)
             self.owner = owner
+            if group_manager is not None:
+                group_manager.append(self)
 
 
 class BulletGroupManager():

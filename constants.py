@@ -1,12 +1,12 @@
 
-from sprites.sprite_managers import LayeredDirty_Manager, BulletGroup, PlanetGroup, BulletGroupManager
+from sprites.sprite_managers import LayeredDirty_Manager, BulletGroup, PlanetGroup
 from objects.object_managers import SingletonList
 from assets.asset_loader import load_sound, load_music
 
 SCREEN_SIZE = WIDTH, HEIGHT = 1280, 720
 
 SPRITE_MANAGER = LayeredDirty_Manager()
-OBJECT_MANAGER = SingletonList().instance
+OBJECT_MANAGER = SingletonList()
 
 PLANET_MANAGER = PlanetGroup()
 BULLET_MANAGER = BulletGroup()

@@ -1,7 +1,8 @@
 import pygame
 import usb
 import os
-import sys
+
+from maths.vector import Vector
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
@@ -38,10 +39,13 @@ class PS3_Controller:
         else:
             print("right axis is fucking garbage.")
 
+    # returns axes input as vectors
     def get_axes(self):
         self.update_axis()
         if self.left_axis is not None and self.right_axis is not None:
-            return self.left_axis, self.right_axis
+            left = Vector(self.left_axis[0], self.left_axis[1])
+            right = Vector(self.right_axis[0], self.right_axis[1])
+            return left, right
 
     def check_if_connected(self):
         try:

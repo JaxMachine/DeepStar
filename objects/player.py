@@ -1,202 +1,152 @@
 import pygame
-# from pygame.locals import *
-import sys
+
+from objects.game_object import BaseObject
+
+from maths.vector import Vector, Circle
 from assets.asset_loader import load_sound
+# from objects.bullet import Bullet
 from objects.bullet import Bullet
-from assets.asset_loader import load_image
 
-from maths.vector import Vector
-
-from constants import SPRITE_MANAGER, PLANET_MANAGER, OBJECT_MANAGER, BULLET_GROUP_MANAGER, SND_PLAYER_GOT_HIT, SND_DEATH, PLAYERS
 from sprites.sprite_managers import GroupWithOwner
 
+from constants import PLANET_MANAGER, BULLET_GROUP_MANAGER, SND_PLAYER_GOT_HIT, SND_DEATH, SPRITE_MANAGER
 
 HEALTH = 100
-BULLET_DMG = 10
+BULLET_DMG = 10  # extract this out to bullet class?
 
 
-class Player(pygame.sprite.DirtySprite):
+class Player(BaseObject):
 
-    def __init__(self, sprite_name, controller, pos=None):
-        # call DirtySprite initializer
-        pygame.sprite.DirtySprite.__init__(self, SPRITE_MANAGER.instance)
-        self.image, self.rect = load_image(sprite_name, -1)
-        OBJECT_MANAGER.instance.add(self)
-        self.name = sprite_name
-        self.delete = False
+    def __init__(self, sprite_name, controller, pos):
+        BaseObject.__init__(self, sprite_name, pos, SPRITE_MANAGER.instance)
 
-        if pos is not None:
-            self.old_position = pos
-            self.rect.center = pos
-            self.dirty = 1
-        self.name = sprite_name
-
-        # make sure controller is initialized
+        # assumes an already initialized controller
+        # TODO: Create virtual controller - currently we rely on PS3 controller
         self.joystick = controller
-        if not self.joystick.get_init():
-            self.joystick.init()
-
-        self.new_x = 0
-        self.new_y = 0
         self.can_shoot = 1
         self.can_move = 1
 
-        self.pos = Vector(self.rect.x, self.rect.y)
-        # self.old_position = self.pos
         self.trajectory = Vector(0, 0)
-        self.updated_trajectory = False
+        self.begun_movement = False  # Could eliminate this by having the player already moving at start...
 
+        # TODO: get rid of this line of code, since we will be using a rect mask for collisions...
         self.radius = self.rect.x - self.rect.centerx
 
-        self.vspeed = 0
-        self.hspeed = 0
-        self.old_hspeed = 0
-        self.old_vspeed = 0
+        self.old_hspeed, self.old_vspeed = 0, 0
+        self.hspeed, self.vspeed = 0, 0
 
         self.fire_sound = load_sound("321102__nsstudios__laser1.wav")
 
         self.health = HEALTH
-        self.bullet_group = GroupWithOwner(owner=self.name)
-        BULLET_GROUP_MANAGER.append(self.bullet_group)
-        # f.close()
-        # sys.stdout = sys.__stdout__
+        self.bullet_group = GroupWithOwner(owner=self.name, group_manager=BULLET_GROUP_MANAGER)
 
-    def reset(self):
-        self.rect.center = self.old_position
-        self.pos = Vector(self.rect.x, self.rect.y)
-        self.trajectory = Vector(0, 0)
-        self.updated_trajectory = False
-        self.delete = False
-
-        self.vspeed = 0
-        self.hspeed = 0
-        self.old_hspeed = 0
-        self.old_vspeed = 0
-
-        self.can_shoot = 1
-        self.can_move = 1
-        self.health = HEALTH
-        self.dirty = 1
-        SPRITE_MANAGER.instance.add(self)
-
-    def get_rect(self):
-        return self.rect
-
-    def shoot(self):
+    def _shoot(self):
         self.can_shoot -= 1
         if self.can_shoot == 0:
             self.can_shoot = 5
-            if self.new_b_x != 0 or self.new_b_y != 0:
-                b = Bullet((self.new_b_x, self.new_b_y), (self.rect.centerx, self.rect.centery))
-                self.bullet_group.add(b)
+            if self.right.x != 0 or self.right.y != 0:
+                bullet = Bullet((self.right.x, self.right.y), self.rect.center)
+                self.bullet_group.add(bullet)
                 self.fire_sound.play()
 
-    def pn(self, name, vector):
-        out = "{0}: ({1}, {2})".format(name, vector.x, vector.y)
-        print(out)
-
-    def move(self):
-        self.rect.x = self.pos.x
-        self.rect.y = self.pos.y
-
-        self.dirty = 1
-
-    def _get_new_pos(self):
-        new = self.pos - self.trajectory
-        new_pos = self.pos
-        new_pos += (new - new_pos).normal().mult(self.hspeed, self.vspeed)
-
-        # check to see if that new position collides....
-        self.rect.x = new_pos.x
-        self.rect.y = new_pos.y
-        collide = pygame.sprite.spritecollideany(
-            self, PLANET_MANAGER.instance, pygame.sprite.collide_circle
-        )
-        if collide is not None:
-            self.hspeed = (self.hspeed * -1)/1.25
-            self.vspeed = (self.vspeed * -1)/1.25
-            # set rect back to old position
-            self.rect.x = self.pos.x
-            self.rect.y = self.pos.y
-        elif new_pos.x > 1280 or new_pos.x < 0:
-            # print("we are colliding with wallLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
-            self.rect.x = self.pos.x
-            self.rect.y = self.pos.y
-            self.hspeed = (self.hspeed * -1)/1.25
-        elif new_pos.y > 720 or new_pos.y < 0:
-            # print("we are colliding with cielingGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGg")
-            self.rect.x = self.pos.x
-            self.rect.y = self.pos.y
-            self.vspeed = (self.vspeed * -1)/1.25
-        else:
-            self.pos = new_pos
-        return self.pos
-
-    def update_trajectory(self):
-        self.can_move -= 1
-
-        left, right = self.joystick.get_axes()
-        self.new_b_x, self.new_b_y = right
-
-        self.new_x, self.new_y = left
-
-        if self.can_move == 0:
-            self.can_move = 5
-            if self.new_x != 0 or self.new_y != 0:
-
-                self.old_hspeed = self.hspeed
-                self.old_vspeed = self.vspeed
-                if self.new_x > 0:
-                    self.hspeed += .2
-                else:
-                    self.hspeed -= .2
-                if self.new_y > 0:
-                    self.vspeed += .2
-                else:
-                    self.vspeed -= .2
-
-                if self.trajectory.x == 0:
-                    self.trajectory.x = self.new_x
-                if self.trajectory.y == 0:
-                    self.trajectory.y = self.new_y
-
-                if self.old_hspeed > 0 and self.hspeed < 0:  # that means we have switched directions, get a new trajecorty
-                    self.trajectory.x = self.new_x
-                elif self.old_hspeed < 0 and self.hspeed > 0:  # that means we have switched directios, get a new trajectory
-                    self.trajectory.x = self.new_x
-
-                if self.old_vspeed > 0 and self.vspeed < 0:  # that means we have switched directions, get a new trajecorty
-                    self.trajectory.y = self.new_y
-                elif self.old_vspeed < 0 and self.vspeed > 0:  # that means we have switched directios, get a new trajectory
-                    self.trajectory.y = self.new_y
-
-                if self.trajectory.x < 0:
-                    self.trajectory.x *= -1
-                if self.trajectory.y < 0:
-                    self.trajectory.y *= -1
-                self.updated_trajectory = True
-
-    def collide_with_bullet(self):
+    def _hit_with_bullet(self, rect):
         for group in BULLET_GROUP_MANAGER:
             if group != self.bullet_group:
+                # TODO: change way bullets check for collision against player to match planet collision check(rect against circle)
                 bullets = pygame.sprite.spritecollide(
-                    self, group, False, pygame.sprite.collide_circle)
+                    self, group, False, pygame.sprite.collide_circle
+                )
                 for bullet in bullets:
-                    self.health -= BULLET_DMG
                     if self.health < 0:
                         self.delete = True
                     bullet.delete = True
                     SND_PLAYER_GOT_HIT.play()
 
-    def update(self):
-        if self.delete:
-            self.kill()
-            SND_DEATH.play()
-            self.reset()
-        self.update_trajectory()
-        if self.updated_trajectory:
-            self._get_new_pos()
+    def _collide_with_planet(self, rect):
+        for planet in PLANET_MANAGER.instance.sprites():
+            c = Circle(planet.rect.centerx, planet.rect.centery, planet.radius)
+            if c.intersects_rect(rect):
+                return True
 
-        self.collide_with_bullet()
-        self.move()
-        self.shoot()
+    def _collide_with_walls(self, new_pos):
+        collide = False
+        if new_pos.x > 1280 or new_pos.x < 0:
+            self.hspeed = (self.hspeed * -1)/1.25
+            collide = True
+        elif new_pos.y > 720 or new_pos.y < 0:
+            self.vspeed = (self.vspeed * -1)/1.25
+            collide = True
+        return collide
+
+    def _collide(self, new_pos):
+        copy = self.rect.copy()
+        copy.x, copy.y = new_pos.x, new_pos.y
+        collide = False
+        if self._collide_with_planet(copy):
+            self.hspeed = (self.hspeed * -1)/1.25
+            self.vspeed = (self.vspeed * -1)/1.25
+            collide = True
+        elif self._collide_with_walls(new_pos):
+            collide = True
+        return collide
+
+    def _get_new_pos(self):
+        trajectory_vector = self.pos - self.trajectory
+        new_pos = self.pos
+        new_pos += (trajectory_vector - new_pos).normal().mult(self.hspeed, self.vspeed)
+        if not self._collide(new_pos):
+            print("we are not colliding ...")
+            self.pos = new_pos
+        else:
+            print("we are colliding")
+
+    # should limit these speeds?
+    def _update_hspeed(self, x):
+        self.old_hspeed = self.hspeed
+        self.hspeed = self.hspeed + .2 if x > 0 else self.hspeed - .2
+
+    # should limit these speeds?
+    def _update_vspeed(self, y):
+        self.old_vspeed = self.vspeed
+        self.vspeed = self.vspeed + .2 if y > 0 else self.vspeed - .2
+
+    def _update_trajectory(self, x, y):
+        # code only needed for start of game (whiqle player is not moving...)
+        if self.trajectory.x == 0:
+            self.trajectory.x = x
+        if self.trajectory.y == 0:
+            self.trajectory.y = y
+
+        # if we switch directions, change trajectory
+        if (self.old_hspeed > 0 and self.hspeed < 0) or (self.old_hspeed < 0 and self.hspeed > 0):
+            self.trajectory.x = x
+
+        # if we switch directions, change trajectory
+        if (self.old_vspeed > 0 and self.vspeed < 0) or (self.old_vspeed < 0 and self.vspeed > 0):
+            self.trajectory.y = y
+
+        # Keeps axes inversion consistent
+        if self.trajectory.x < 0:
+            self.trajectory.x *= -1
+        if self.trajectory.y < 0:
+            self.trajectory.y *= -1
+
+        self.begun_movement = True
+
+    def _check_inputs(self):
+        self.can_move -= 1
+
+        self.left, self.right = self.joystick.get_axes()
+
+        if self.can_move == 0:
+            self.can_move = 5
+            if self.left.x != 0 or self.left.y != 0:
+                self._update_hspeed(self.left.x)
+                self._update_vspeed(self.left.y)
+                self._update_trajectory(self.left.x, self.left.y)
+
+    def update(self):
+        if self._check_inputs() or self.begun_movement:
+            self._get_new_pos()
+            self.move()
+        self._shoot()
