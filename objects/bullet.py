@@ -1,42 +1,46 @@
-import pygame
+from maths.vector import Vector
 
-from assets.asset_loader import load_image
-from sprites.sprite_managers import LayeredDirty_Manager
+from objects.game_object import BaseObject
 
-sprite_manager = LayeredDirty_Manager()  # returns instance of sprite manager...
+from constants import SPRITE_MANAGER, BULLET_MANAGER
 
 
-class Bullet(pygame.sprite.DirtySprite):
+class Bullet(BaseObject):
 
-    def __init__(self, trajectory, pos=None):
-        # call DirtySprite initializer
-        pygame.sprite.DirtySprite.__init__(self, sprite_manager)
-        self.image, self.rect = load_image("bullet.png", -1)
-        self.trajectory
+    def __init__(self, trajectory, pos):
+        BaseObject.__init__(self, "Bullet.png", pos, SPRITE_MANAGER.instance)
+        self.trajectory = trajectory
 
-        # if pass a position, move it and mark it dirty..
-        if pos is not None:
-            self.rect.center = pos
-            self.dirty = 1
         self.delete = False
-        # Game_Object_Manager.instance.add(self)
-        pygame.sprite.LayeredDirty(self)
+        self.redius = self.rect.centerx - self.rect.centery
 
-        def get_rect(self):
-            return self.rect
+        BULLET_MANAGER.instance.add(self)
+        self.speed = 5
+        self.collided = False
 
-        def move(self):
-            self.rect.left += (self.trajectory[0] * 6)
-            self.rect.top += (self.trajectory[1] * 6)
-            if self.rect.right > 540:
-                self.kill()
-            if self.rect.left < 100:
-                self.kill()
-            if self.rect.top < 100:
-                self.kill()
-            if self.rect.bottom > 380:
-                self.kill()
-            self.dirty = 1
+    def _get_new_pos(self, trajectory):
+        new = self.pos - Vector(-trajectory[0], -trajectory[1])
+        self.pos += (new - self.pos).normal() * self.speed
+        return self.pos
 
-        def update(self):
-            self.move()
+    def move(self):
+        self._get_new_pos(self.trajectory)
+        super(Bullet, self).move()
+
+        # delete if we are beyond the bounds of the room...
+        if self.rect.right > 1280:
+            self.delete = True
+        if self.rect.left < -20:
+            self.delete = True
+        if self.rect.top < -20:
+            self.delete = True
+        if self.rect.bottom > 720:
+            self.delete = True
+
+        self.dirty = 1
+
+    def update(self):
+        if self.delete:
+            BULLET_MANAGER.instance.remove(self)
+            super(Bullet, self).delete()
+        self.move()
