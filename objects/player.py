@@ -128,7 +128,6 @@ class Player(BaseObject):
             self.hspeed -= SPEED_GROWTH
             if self.hspeed < -MAX_SPEED:
                 self.hspeed = -MAX_SPEED
-                print(diff)
         else:
             self.hspeed = self.hspeed + SPEED_GROWTH if x > 0 else self.hspeed - SPEED_GROWTH
 
