@@ -13,6 +13,10 @@ from constants import PLANET_MANAGER, BULLET_GROUP_MANAGER, SND_PLAYER_GOT_HIT, 
 HEALTH = 100
 BULLET_DMG = 10  # extract this out to bullet class?
 
+SPEED_GROWTH = 1
+SPEED_CHANGE = 3
+MAX_SPEED = 10
+
 
 class Player(BaseObject):
 
@@ -100,14 +104,49 @@ class Player(BaseObject):
             print("we are colliding")
 
     # should limit these speeds?
+    # so, we want to brake quickly
+    # def _update_hspeed(self, x):
+    #     self.old_hspeed = self.hspeed
+    #     self.hspeed = self.hspeed + .2 if x > 0 else self.hspeed - .2
+    #
+    # # should limit these speeds?
+    # def _update_vspeed(self, y):
+    #     self.old_vspeed = self.vspeed
+    #     self.vspeed = self.vspeed + .2 if y > 0 else self.vspeed - .2
+
     def _update_hspeed(self, x):
         self.old_hspeed = self.hspeed
-        self.hspeed = self.hspeed + .2 if x > 0 else self.hspeed - .2
+        if self.hspeed > 0 and x < 0:
+            self.hspeed -= SPEED_CHANGE
+        elif self.hspeed > 0 and x > 0:
+            self.hspeed += SPEED_GROWTH
+            if self.hspeed > MAX_SPEED:
+                self.hspeed = MAX_SPEED
+        elif self.hspeed < 0 and x > 0:
+            self.hspeed += SPEED_CHANGE
+        elif self.hspeed < 0 and x < 0:
+            self.hspeed -= SPEED_GROWTH
+            if self.hspeed < -MAX_SPEED:
+                self.hspeed = -MAX_SPEED
+        else:
+            self.hspeed = self.hspeed + SPEED_GROWTH if x > 0 else self.hspeed - SPEED_GROWTH
 
-    # should limit these speeds?
     def _update_vspeed(self, y):
         self.old_vspeed = self.vspeed
-        self.vspeed = self.vspeed + .2 if y > 0 else self.vspeed - .2
+        if self.vspeed > 0 and y < 0:
+            self.vspeed -= SPEED_CHANGE
+        elif self.vspeed > 0 and y > 0:
+            self.vspeed += SPEED_GROWTH
+            if self.vspeed > MAX_SPEED:
+                self.vspeed = MAX_SPEED
+        elif self.vspeed < 0 and y > 0:
+            self.vspeed += SPEED_CHANGE
+        elif self.vspeed < 0 and y < 0:
+            self.vspeed -= SPEED_GROWTH
+            if self.vspeed < -MAX_SPEED:
+                self.vspeed = -MAX_SPEED
+        else:
+            self.vspeed = self.vspeed + SPEED_GROWTH if y > 0 else self.vspeed - SPEED_GROWTH
 
     def _update_trajectory(self, x, y):
         # code only needed for start of game (whiqle player is not moving...)
@@ -133,22 +172,30 @@ class Player(BaseObject):
         self.begun_movement = True
 
     def _check_inputs(self):
-        self.can_move -= 1
+        # self.can_move -= 1
 
         self.left, self.right = self.joystick.get_axes()
 
-        if self.can_move == 0:
-            self.can_move = 5
-            if self.left.x != 0 or self.left.y != 0:
+        # if self.can_move == 0:
+        #     self.can_move = 5
+            # if self.left.x != 0 or self.left.y != 0:
+            #     self._update_hspeed(self.left.x)
+            #     self._update_vspeed(self.left.y)
+        if self.left.x != 0 or self.left.y != 0:
+            if self.left.x != 0:
                 self._update_hspeed(self.left.x)
+            if self.left.y != 0:
                 self._update_vspeed(self.left.y)
-                self._update_trajectory(self.left.x, self.left.y)
+            self._update_trajectory(self.left.x, self.left.y)
+
+    def delete(self):
+        super(Player, self).delete()
+        SND_DEATH.play()
+        self.reset()
 
     def update(self):
         if self.delete:
-            super(Player, self).delete()
-            SND_DEATH.play()
-            self.reset()
+            self.delete()
         if self._check_inputs() or self.begun_movement:
             self._get_new_pos()
             self.move()
