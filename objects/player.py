@@ -4,7 +4,6 @@ from objects.game_object import BaseObject
 
 from maths.vector import Vector, Circle
 from assets.asset_loader import load_sound
-# from objects.bullet import Bullet
 from objects.bullet import Bullet
 
 from sprites.sprite_managers import GroupWithOwner
@@ -49,7 +48,7 @@ class Player(BaseObject):
                 self.bullet_group.add(bullet)
                 self.fire_sound.play()
 
-    def _hit_with_bullet(self, rect):
+    def _hit_with_bullet(self):
         for group in BULLET_GROUP_MANAGER:
             if group != self.bullet_group:
                 # TODO: change way bullets check for collision against player to match planet collision check(rect against circle)
@@ -146,7 +145,12 @@ class Player(BaseObject):
                 self._update_trajectory(self.left.x, self.left.y)
 
     def update(self):
+        if self.delete:
+            super(Player, self).delete()
+            SND_DEATH.play()
+            self.reset()
         if self._check_inputs() or self.begun_movement:
             self._get_new_pos()
             self.move()
+        self._hit_with_bullet()
         self._shoot()

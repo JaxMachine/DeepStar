@@ -35,10 +35,6 @@ class DeepStar:
     # initialize game objects, etc..
     def init_game(self):
         # set game constants
-        if self.check_if_connected():
-            print("conntected")
-        else:
-            print("not connected")
 
         # create the background, blit it to the screen...
         self.background, self.background_pos = load_image("Map.png")

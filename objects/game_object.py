@@ -1,5 +1,3 @@
-import pygame
-
 from constants import OBJECT_MANAGER
 from maths.vector import Vector
 
