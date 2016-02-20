@@ -1,6 +1,8 @@
 from objects.player import Player
 from objects.planets import Planet
 from controller.PS3 import PS3_Controller
+from controller.keyboard_controller import KeyboardController
+from controller.controller import Controller
 
 from constants import HEIGHT
 
@@ -9,8 +11,11 @@ def load_level(joysticks):
     object_list = []
 
     # create player object at the center of the level...
-
-    controller_one = PS3_Controller(joysticks[0])
+    print(joysticks)
+    if len(joysticks) == 0:
+        controller_one = KeyboardController()
+    else:
+        controller_one = PS3_Controller(joysticks[0])
     # controller_two = PS3_Controller(joysticks[1])
 
     player1 = Player("DeepStar_Player2.png", controller_one, (100, HEIGHT/2))

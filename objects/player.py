@@ -188,9 +188,10 @@ class Player(BaseObject):
                 self._update_vspeed(self.left.y)
             self._update_trajectory(self.left.x, self.left.y)
 
-        self.buttons = self.joystick.update_buttons()
-        if self.buttons['x']:
+        # self.buttons = self.joystick.update_buttons()
+        if self.joystick.get_action_button():
             self._land()
+        self.joystick.done_with_input()
 
     # TODO: rename delete function to deleteMe to ensure name/variable don't collide
     def deleteMe(self):

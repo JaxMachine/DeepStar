@@ -18,6 +18,7 @@ class PS3_Controller:
         self.buttons = self.joystick.get_numbuttons()
         self.left_axis = [self.joystick.get_axis(0), self.joystick.get_axis(1)]
         self.right_axis = [self.joystick.get_axis(2), self.joystick.get_axis(3)]
+        self.updated_buttons = False
 
     def update_axis(self):
         if self.joystick is not None:
@@ -33,13 +34,21 @@ class PS3_Controller:
                 self.buttons = {
                     'x': self.joystick.get_button(14)
                 }
-                if self.buttons['x']:
-                    print("we are pressing the x button")
+                self.updated_buttons = True
                 return self.buttons
             except pygame.error:
                 print("could not get joystick buttons")
         else:
             self.buttons = None
+
+    def get_action_button(self):
+        if not self.updated_buttons:
+            self.update_buttons()
+            self.updated_buttons = True
+        return self.buttons['x']
+
+    def done_with_input(self):
+        self.updated_buttons = False
 
     def get_init(self):
         if self.joystick.get_init():
