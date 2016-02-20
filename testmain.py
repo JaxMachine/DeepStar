@@ -46,12 +46,7 @@ class DeepStar:
 
     def update(self):
         for game_object in OBJECT_MANAGER.instance.list():
-            # for debug purposes...
-            f = open("log3", 'a')
-            sys.stdout = f
             game_object.update()
-            f.close()
-            sys.stdout = sys.__stdout__
 
     def draw(self):
         rects = SPRITE_MANAGER.instance.draw(self.screen)
@@ -60,6 +55,9 @@ class DeepStar:
     def run(self):
         SPRITE_MANAGER.instance.clear(self.screen, self.background)
 
+        # for debug purposes...
+        f = open("log3", 'a')
+        sys.stdout = f
         while not self.exit:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -67,7 +65,10 @@ class DeepStar:
             self.clock.tick(50)
             self.update()
             self.draw()
-
+            # should call this once per game loop to ensure pygame talks to sys
+            pygame.event.pump()
+        f.close()
+        sys.stdout = sys.__stdout__
         pygame.quit()
 
 if __name__ == "__main__":

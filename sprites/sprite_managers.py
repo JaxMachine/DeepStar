@@ -18,6 +18,23 @@ class PlanetGroup():
         def __init__(self):
             pygame.sprite.Group.__init__(self)
 
+        def get_closest(self, other):
+            closest, planet = None, None
+            print(self.sprites())
+            for p in self.sprites():
+                # calculate distance between planet and other
+                dist = (p.pos - other.pos).length()
+                print("printing dist")
+                print(dist)
+                if closest is None:
+                    closest = dist
+                    planet = p
+                else:
+                    if dist < closest:
+                        closest = dist
+                        planet = p
+                return planet
+
     instance = None
 
     def __init__(self):

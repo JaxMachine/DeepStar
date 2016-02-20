@@ -2,17 +2,16 @@ import pygame
 
 from objects.game_object import BaseObject
 
-from constants import PLANET_MANAGER, BULLET_MANAGER, SND_IMPACT
+from constants import PLANET_MANAGER, BULLET_MANAGER, SND_IMPACT, SPRITE_MANAGER
 
 
 class Planet(BaseObject):
 
-    def __init__(self, sprite_name, pos):
-        BaseObject.__init__(self, sprite_name, pos)
+    def __init__(self, sprite_name, pos, debug=None):
+        BaseObject.__init__(self, sprite_name, pos, SPRITE_MANAGER.instance)
 
         self.radius = self.rect.x - self.rect.centerx
         PLANET_MANAGER.instance.add(self)
-        self.dirty = 0
 
     def update(self):
         bullets = pygame.sprite.spritecollide(

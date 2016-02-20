@@ -30,6 +30,9 @@ class Vector:
     def __div__(self, scalar):
         return Vector(self.x / scalar, self.y / scalar)
 
+    def to_tuple(self):
+        return self.x, self.y
+
     def length(self):
         return ((self.x ** 2) + (self.y ** 2)) ** 0.5
 

@@ -1,12 +1,6 @@
 import os
 import pygame
-# from pygame.locals import *
 from pygame.compat import geterror
-
-# game object imports
-# from objects.player import Player
-#
-# from testmain import WIDTH, HEIGHT
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, 'images/')
@@ -34,7 +28,6 @@ def load_image(name, colorkey=None):
 
 def load_sound(name):
     filename = os.path.join(sound_dir, name)
-    print(filename)
     try:
         sound = pygame.mixer.Sound(os.path.join(filename))
     except pygame.error:
@@ -44,9 +37,7 @@ def load_sound(name):
 
 
 def load_music(name):
-    print("load music")
     filename = os.path.join(sound_dir, name)
-    print(filename)
     try:
         pygame.mixer.music.load(filename)
         pygame.mixer.music.set_volume(1)

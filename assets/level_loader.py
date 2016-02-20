@@ -22,8 +22,8 @@ def load_level(joysticks):
     # seed_p = Planet("SeedPlanet_Solid.png", (1038, 144))
     # object_list.append(seed_p)
     # #
-    # meat_p = Planet("MeatPlanet_Solid.png", (637, 339))
-    # object_list.append(meat_p)
+    meat_p = Planet("MeatPlanet_Solid.png", (637, 339))
+    object_list.append(meat_p)
     #
     # quilt_p = Planet("QuiltPlanet_Solid.png", (229, 550))
     # object_list.append(quilt_p)

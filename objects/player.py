@@ -5,6 +5,7 @@ from objects.game_object import BaseObject
 from maths.vector import Vector, Circle
 from assets.asset_loader import load_sound
 from objects.bullet import Bullet
+from objects.player_on_planet import PlayerOnPlanet
 
 from sprites.sprite_managers import GroupWithOwner
 
@@ -26,6 +27,7 @@ class Player(BaseObject):
         # assumes an already initialized controller
         # TODO: Create virtual controller - currently we rely on PS3 controller
         self.joystick = controller
+        self.land = False
         self.can_shoot = 1
         self.can_move = 1
 
@@ -98,10 +100,7 @@ class Player(BaseObject):
         new_pos = self.pos
         new_pos += (trajectory_vector - new_pos).normal().mult(self.hspeed, self.vspeed)
         if not self._collide(new_pos):
-            print("we are not colliding ...")
             self.pos = new_pos
-        else:
-            print("we are colliding")
 
     # should limit these speeds?
     # so, we want to brake quickly
@@ -171,16 +170,17 @@ class Player(BaseObject):
 
         self.begun_movement = True
 
+    def _land(self):
+        closest_planet = PLANET_MANAGER.instance.get_closest(self)
+        if not self.land:
+            self.land = True
+            self.delete = True
+            PlayerOnPlanet(
+                "OnPlanetSprite1.png", self.joystick, self.pos.to_tuple(), closest_planet)
+
     def _check_inputs(self):
-        # self.can_move -= 1
-
         self.left, self.right = self.joystick.get_axes()
-
-        # if self.can_move == 0:
-        #     self.can_move = 5
-            # if self.left.x != 0 or self.left.y != 0:
-            #     self._update_hspeed(self.left.x)
-            #     self._update_vspeed(self.left.y)
+        # clean up these if statements...
         if self.left.x != 0 or self.left.y != 0:
             if self.left.x != 0:
                 self._update_hspeed(self.left.x)
@@ -188,14 +188,18 @@ class Player(BaseObject):
                 self._update_vspeed(self.left.y)
             self._update_trajectory(self.left.x, self.left.y)
 
-    def delete(self):
+        self.buttons = self.joystick.update_buttons()
+        if self.buttons['x']:
+            self._land()
+
+    # TODO: rename delete function to deleteMe to ensure name/variable don't collide
+    def deleteMe(self):
         super(Player, self).delete()
         SND_DEATH.play()
-        self.reset()
 
     def update(self):
         if self.delete:
-            self.delete()
+            self.deleteMe()
         if self._check_inputs() or self.begun_movement:
             self._get_new_pos()
             self.move()
