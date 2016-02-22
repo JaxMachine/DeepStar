@@ -178,6 +178,12 @@ class Player(BaseObject):
             PlayerOnPlanet(
                 "OnPlanetSprite1.png", self.joystick, self.pos.to_tuple(), closest_planet)
 
+    # for debug purposes
+    def _brake(self):
+        self.hspeed = 0
+        self.vspeed = 0
+        self.begun_movement = False
+
     def _check_inputs(self):
         self.left, self.right = self.joystick.get_axes()
         # clean up these if statements...
@@ -188,9 +194,10 @@ class Player(BaseObject):
                 self._update_vspeed(self.left.y)
             self._update_trajectory(self.left.x, self.left.y)
 
-        # self.buttons = self.joystick.update_buttons()
         if self.joystick.get_action_button():
             self._land()
+        elif self.joystick.get_brake_button():  # for debug purposes
+            self._brake()
         self.joystick.done_with_input()
 
     # TODO: rename delete function to deleteMe to ensure name/variable don't collide
@@ -201,7 +208,8 @@ class Player(BaseObject):
     def update(self):
         if self.delete:
             self.deleteMe()
-        if self._check_inputs() or self.begun_movement:
+        self._check_inputs()
+        if self.begun_movement:
             self._get_new_pos()
             self.move()
         self._hit_with_bullet()

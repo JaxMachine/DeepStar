@@ -32,7 +32,8 @@ class PS3_Controller:
         if self.joystick is not None:
             try:
                 self.buttons = {
-                    'x': self.joystick.get_button(14)
+                    'x': self.joystick.get_button(14),
+                    'o': self.joystick.get_button(13)
                 }
                 self.updated_buttons = True
                 return self.buttons
@@ -44,8 +45,12 @@ class PS3_Controller:
     def get_action_button(self):
         if not self.updated_buttons:
             self.update_buttons()
-            self.updated_buttons = True
         return self.buttons['x']
+
+    def get_brake_button(self):
+        if not self.updated_buttons:
+            self.update_buttons()
+        return self.buttons['o']
 
     def done_with_input(self):
         self.updated_buttons = False
@@ -61,7 +66,7 @@ class PS3_Controller:
             right = Vector(self.right_axis[0], self.right_axis[1])
             return right
         else:
-            print("right axis is fucking garbage.")
+            raise pygame.error("right axis is 'None'")
 
     def get_left_axis(self):
         self.update_axis()
@@ -69,7 +74,7 @@ class PS3_Controller:
             left = Vector(self.left_axis[0], self.left_axis[1])
             return left
         else:
-            print("left axis is fucking garbage.")
+            raise pygame.error("left axis is 'None'")
 
     # returns axes input as vectors
     def get_axes(self):

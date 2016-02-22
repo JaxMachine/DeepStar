@@ -1,24 +1,14 @@
 # interface for virtual controller
-class Controller:
+from keyboard_controller import KeyboardController
+from PS3 import PS3_Controller
 
-    # assumes an initialized controller
-    def __init__(self, controller):
-        self.controller = controller
 
-    def get_axes(self):
-        return self.controller.get_axes()
-
-    def get_right_axis(self):
-        return self.controller.get_right_axis()
-
-    def get_left_axis(self):
-        return self.controller.get_left_axis()
-
-    def get_action_button(self):
-        return self.controller.get_action_button()
-
-    def update_buttons(self):
-        return self.controller.update_buttons()
-
-    def done_with_input(self):
-        self.controller.done_with_input()
+def init_controller(joysticks):
+    controller_list = []
+    if len(joysticks) == 0:
+        controller_list.append(KeyboardController())
+        return controller_list
+    else:
+        for controller in joysticks:
+            controller_list.append(PS3_Controller(controller))
+        return controller_list
