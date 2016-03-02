@@ -1,5 +1,6 @@
 from objects.player import Player
 from objects.planets import Planet
+from objects.test_pilot import TestPilot
 from controller.controller import init_controller
 
 from constants import HEIGHT
@@ -10,7 +11,7 @@ def load_level(joysticks):
 
     controllers = init_controller(joysticks)
     for controller in controllers:
-        player = Player("DeepStar_Player2.png", controller, (100, HEIGHT/2))
+        player = TestPilot("ShipSprite.png", controller, (100, HEIGHT/2))
         object_list.append(player)
 
     # seed_p = Planet("SeedPlanet_Solid.png", (1038, 144))

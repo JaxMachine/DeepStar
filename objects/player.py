@@ -5,7 +5,7 @@ from objects.game_object import BaseObject
 from maths.vector import Vector, Circle
 from assets.asset_loader import load_sound
 from objects.bullet import Bullet
-from objects.player_on_planet import PlayerOnPlanet
+import objects.player_utils
 
 from sprites.sprite_managers import GroupWithOwner
 
@@ -35,7 +35,7 @@ class Player(BaseObject):
         self.begun_movement = False  # Could eliminate this by having the player already moving at start...
 
         # TODO: get rid of this line of code, since we will be using a rect mask for collisions...
-        self.radius = self.rect.x - self.rect.centerx
+        self.radius = self.rect.centerx - self.rect.x
 
         self.old_hspeed, self.old_vspeed = 0, 0
         self.hspeed, self.vspeed = 0, 0
@@ -102,17 +102,6 @@ class Player(BaseObject):
         if not self._collide(new_pos):
             self.pos = new_pos
 
-    # should limit these speeds?
-    # so, we want to brake quickly
-    # def _update_hspeed(self, x):
-    #     self.old_hspeed = self.hspeed
-    #     self.hspeed = self.hspeed + .2 if x > 0 else self.hspeed - .2
-    #
-    # # should limit these speeds?
-    # def _update_vspeed(self, y):
-    #     self.old_vspeed = self.vspeed
-    #     self.vspeed = self.vspeed + .2 if y > 0 else self.vspeed - .2
-
     def _update_hspeed(self, x):
         self.old_hspeed = self.hspeed
         if self.hspeed > 0 and x < 0:
@@ -175,7 +164,7 @@ class Player(BaseObject):
         if not self.land:
             self.land = True
             self.delete = True
-            PlayerOnPlanet(
+            objects.player_utils.create_player_on_planet(
                 "OnPlanetSprite1.png", self.joystick, self.pos.to_tuple(), closest_planet)
 
     # for debug purposes
