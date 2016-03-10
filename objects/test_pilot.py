@@ -11,7 +11,7 @@ from math import atan2, pi, cos, sin, radians
 ANGULAR_VELOCITY = 7
 SPEED_GROWTH = .2
 SPEED_CHANGE = 3
-MAX_SPEED = 3
+MAX_SPEED = 5
 BASE_SPEED = 1
 
 
@@ -26,6 +26,7 @@ class TestPilot(BaseObject):
         # in degrees, 0 is top, 90 is left, 180 is down, 270 is right
         self.facing_direction = 0
         self.moving_direction = 0
+        self.prev_moving_direction = 0
         self._rotate(self.facing_direction)
         self.trajectory = Vector(0, 0)
         self.prev_trajectory = Vector(0, 0)
@@ -39,6 +40,9 @@ class TestPilot(BaseObject):
         self.begun_movement = False
         self.point_list = []
         self.changed_dir = False
+        self.slowing_down = False
+        self.slowing_down_x = False
+        self.slowing_down_y = False
 
     def _adjust_angle(self):
         dx = self.right.x - self.rect.centerx
@@ -92,24 +96,43 @@ class TestPilot(BaseObject):
             return
         if y > 0:
             if self.prev_y >= 0:
-                self.vspeed += SPEED_GROWTH
-                if self.vspeed > MAX_SPEED:
-                    self.vspeed = MAX_SPEED
+                if self.slowing_down_y:
+                    self.vspeed, self.slowing_down_y = self.slow_down(self.vspeed)
+                else:
+                    self.vspeed += SPEED_GROWTH
+                    if self.vspeed > MAX_SPEED:
+                        self.vspeed = MAX_SPEED
                 self.prev_y = y
             elif self.prev_y < 0:
-                # self.vspeed = BASE_SPEED
-                self.vspeed *= -1
+                self.slowing_down = True
+                self.vspeed, self.slowing_down_y = self.slow_down(self.vspeed)  # we are slowing down
                 self.prev_y = y
         elif y < 0:
             if self.prev_y <= 0:
-                self.vspeed += SPEED_GROWTH
-                if self.vspeed > MAX_SPEED:
-                    self.vspeed = MAX_SPEED
+                if self.slowing_down_y:
+                    self.vspeed, self.slowing_down_y = self.slow_down(self.vspeed)
+                else:
+                    self.vspeed += SPEED_GROWTH
+                    if self.vspeed > MAX_SPEED:
+                        self.vspeed = MAX_SPEED
                 self.prev_y = y
             elif self.prev_y > 0:
-                # self.vspeed = BASE_SPEED
-                self.vspeed *= -1  # what if I divide by 2, and negate?...
+                self.slowing_down = True
+                self.vspeed, self.slowing_down_y = self.slow_down(self.vspeed)
                 self.prev_y = y
+
+    def slowed(self, speed):
+        if speed < 1:
+            return True
+        return False
+
+    def slow_down(self, speed):
+        if self.slowed(speed):
+            self.slowing_down = False
+            return speed, False
+        else:
+            speed *= .95
+            return speed, True
 
     # need to redo all this shit...
     def _update_hspeed(self, x):
@@ -117,59 +140,40 @@ class TestPilot(BaseObject):
             return
         if x > 0:
             if self.prev_x >= 0:
-                self.hspeed += SPEED_GROWTH
-                if self.hspeed > MAX_SPEED:
-                    self.hspeed = MAX_SPEED
+                if self.slowing_down_x:
+                    self.hspeed, self.slowing_down_x = self.slow_down(self.hspeed)
+                else:
+                    self.hspeed += SPEED_GROWTH
+                    if self.hspeed > MAX_SPEED:
+                        self.hspeed = MAX_SPEED
                 self.prev_x = x
             elif self.prev_x < 0:
-                # self.hspeed = BASE_SPEED
-                self.hspeed *= -1
+                self.slowing_down = True
+                self.hspeed, self.slowing_down_x = self.slow_down(self.hspeed)
                 self.prev_x = x
         elif x < 0:
             if self.prev_x <= 0:
-                self.hspeed += SPEED_GROWTH
-                if self.hspeed > MAX_SPEED:
-                    self.hspeed = MAX_SPEED
+                if self.slowing_down_x:
+                    self.hspeed, self.slowing_down_x = self.slow_down(self.hspeed)
+                else:
+                    self.hspeed += SPEED_GROWTH
+                    if self.hspeed > MAX_SPEED:
+                        self.hspeed = MAX_SPEED
                 self.prev_x = x
             elif self.prev_x > 0:
-                # self.hspeed = BASE_SPEED
-                self.hspeed *= -1
+                self.slowing_down = True
+                self.hspeed, self.slowing_down_x = self.slow_down(self.hspeed)
                 self.prev_x = x
 
     def _get_new_pos(self):
-        self.create_points()
-        rads = radians(self.moving_direction)
-
-        if self.changed_dir:
-            self.trajectory.x, self.trajector.y = sin(rads) * (BASE_SPEED), cos(rads) * (BASE_SPEED)
-            test = self.prev_trajectory + self.trajectory  # get new trajectory based on new new shit
-            dx, dy = test.x, test.y
-
-        # This gets me the current movement vector
-        # this gets things working but I need to calculate change in speed when "reversing direction"
-        dx, dy = sin(rads) * (BASE_SPEED * self.hspeed), cos(rads) * (BASE_SPEED * self.vspeed)
-        self.pos.x -= dx
-        self.pos.y -= dy
-
-
-
-    # lets see what it looks like when we are drawing points arl
-    def create_points(self):
-        print("creating points")
-        self.create_point -= 1
-        print("self.create_point = ", self.create_point)
-        if self.create_point == 0:
-            self.create_point = 5
-            if len(self.point_list) == 10:
-                self.point_list.pop()  # pops last item in the list
-            self.point_list.insert(0, self.rect.center)
-            print("length of list: ", len(self.point_list))
-
-    def draw_lines(self):
-        print("reachign code?")
-        if len(self.point_list) > 1:
-            print("drawing lines, here is the pointlist ", self.point_list)
-            pygame.draw.aalines(SCREEN, (0, 255, 0), False, self.point_list, 1)
+            if self.slowing_down:
+                rads = self.prev_moving_direction
+            else:
+                rads = radians(self.moving_direction)
+                self.prev_moving_direction = rads
+            dx, dy = sin(rads) * (BASE_SPEED * self.hspeed), cos(rads) * (BASE_SPEED * self.vspeed)
+            self.pos.x -= dx
+            self.pos.y -= dy
 
     def _check_inputs(self):
         self.left, self.right = self.joystick.get_axes()
@@ -177,9 +181,6 @@ class TestPilot(BaseObject):
         if self.left.x == 0 and self.left.y == 0:
             if self.right.x != 0 or self.right.y != 0:
                 self._update_rotation()
-                self.changed_dir = True
-            else:
-                self.changed_dir = False
 
         if self.left.x != 0 or self.left.y != 0:
             self.moving_direction = self.facing_direction
@@ -190,5 +191,4 @@ class TestPilot(BaseObject):
         self._check_inputs()
         if self.begun_movement:
             self._get_new_pos()
-            # self.draw_lines()
         self.move()

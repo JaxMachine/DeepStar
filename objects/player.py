@@ -98,7 +98,7 @@ class Player(BaseObject):
     def _get_new_pos(self):
         trajectory_vector = self.pos - self.trajectory
         new_pos = self.pos
-        new_pos += (trajectory_vector - new_pos).normal().mult(self.hspeed, self.vspeed)
+        new_pos += ((trajectory_vector - new_pos).normal()).mult(self.hspeed, self.vspeed)
         if not self._collide(new_pos):
             self.pos = new_pos
 
