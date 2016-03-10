@@ -9,7 +9,7 @@ pygame.init()
 from assets.asset_loader import load_image
 from assets.level_loader import load_level
 
-from constants import SCREEN_SIZE, OBJECT_MANAGER, SPRITE_MANAGER
+from constants import OBJECT_MANAGER, SPRITE_MANAGER, SCREEN, BACKGROUND
 
 
 class DeepStar:
@@ -21,7 +21,7 @@ class DeepStar:
         pygame.joystick.init()
         self.joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
 
-        self.screen = pygame.display.set_mode(SCREEN_SIZE)
+        # self.screen = pygame.display.set_mode(SCREEN_SIZE)
         pygame.display.set_caption('DeepStar')
 
         self.clock = pygame.time.Clock()
@@ -38,8 +38,8 @@ class DeepStar:
         # set game constants
 
         # create the background, blit it to the screen...
-        self.background, self.background_pos = load_image("Map.png")
-        self.screen.blit(self.background, (0, 0))
+        # self.background, self.background_pos = load_image("Map.png")
+        SCREEN.blit(BACKGROUND, (0, 0))
 
         load_level(self.joysticks)
 
@@ -50,11 +50,12 @@ class DeepStar:
             game_object.update()
 
     def draw(self):
-        rects = SPRITE_MANAGER.instance.draw(self.screen)
+        rects = SPRITE_MANAGER.instance.draw(SCREEN)
         pygame.display.update(rects)
+        pygame.display.flip()
 
     def run(self):
-        SPRITE_MANAGER.instance.clear(self.screen, self.background)
+        SPRITE_MANAGER.instance.clear(SCREEN, BACKGROUND)
 
         # for debug purposes...
         f = open("log3", 'a')

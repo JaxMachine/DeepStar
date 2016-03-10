@@ -1,7 +1,9 @@
+import pygame
+pygame.init()
 
 from sprites.sprite_managers import LayeredDirty_Manager, BulletGroup, PlanetGroup
 from objects.object_managers import SingletonList
-from assets.asset_loader import load_sound, load_music
+from assets.asset_loader import load_sound, load_music, load_image
 
 SCREEN_SIZE = WIDTH, HEIGHT = 1280, 720
 
@@ -20,5 +22,7 @@ SND_DEATH = load_sound("death.wav")
 
 SND_BACKGROUND = load_music("com-truise-mind[mp3freex].mp3")
 
+SCREEN = pygame.display.set_mode(SCREEN_SIZE)
+BACKGROUND, BACKGROUND_POS = load_image("Map.png")
 
 PLAYERS = [True, True]
