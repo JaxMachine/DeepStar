@@ -9,7 +9,7 @@ pygame.init()
 from assets.asset_loader import load_image
 from assets.level_loader import load_level
 
-from constants import OBJECT_MANAGER, SPRITE_MANAGER, SCREEN, BACKGROUND
+from constants import OBJECT_MANAGER, SPRITE_MANAGER, SCREEN, BACKGROUND, CLOCK
 
 
 class DeepStar:
@@ -24,7 +24,7 @@ class DeepStar:
         # self.screen = pygame.display.set_mode(SCREEN_SIZE)
         pygame.display.set_caption('DeepStar')
 
-        self.clock = pygame.time.Clock()
+        self.clock = CLOCK
 
         if pygame.font:
             self.font = pygame.font.Font(None, 30)

@@ -26,3 +26,4 @@ SCREEN = pygame.display.set_mode(SCREEN_SIZE)
 BACKGROUND, BACKGROUND_POS = load_image("Map.png")
 
 PLAYERS = [True, True]
+CLOCK = pygame.time.Clock()
