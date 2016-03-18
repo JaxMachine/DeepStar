@@ -9,10 +9,10 @@ from constants import SPRITE_MANAGER, CLOCK
 from math import atan2, pi, cos, sin, radians
 
 ANGULAR_VELOCITY = 7
-SPEED_GROWTH = .2
-SPEED_CHANGE = 3
-MAX_SPEED = 5
-BASE_SPEED = 1
+
+DRAG_COEFFICIENT = .5
+MASS = 250
+THRUST = .5
 
 
 class TestPilot(BaseObject):
@@ -28,25 +28,20 @@ class TestPilot(BaseObject):
         self.moving_direction = 0
         self.prev_moving_direction = 0
         self._rotate(self.facing_direction)
-        self.trajectory = Vector(0, 0)
-        self.prev_trajectory = Vector(0, 0)
 
         self.radius = self.rect.centerx - self.rect.x
-        self.old_hspeed, self.old_vspeed = 0, 0
-        self.hspeed, self.vspeed = 1, 1
-        self.speed = BASE_SPEED
-        self.prev_y = 0
-        self.prev_x = 0
         self.begun_movement = False
         self.point_list = []
         self.changed_dir = False
-        # self.slowing_down = False
-        # self.slowing_down_x = False
-        # self.slowing_down_y = False
+
         self.velocity = Vector(0, 0)
         self.acceleration = Vector(0, 0)
         self.impulse = False
 
+        # ship properties..
+        self.mass = MASS
+        self.thrust = THRUST
+        self.engine_thrust = Vector(0, 0)
 
     def _adjust_angle(self):
         dx = self.right.x - self.rect.centerx
@@ -70,151 +65,42 @@ class TestPilot(BaseObject):
                 self.facing_direction += 360
         self._rotate(self.facing_direction)
 
-    # def _adjust_speed(self):
-    #     # these number might be wrong...
-    #     if self.facing_direction > 0 and self.facing_direction < 90:
-    #         self._update_speeds(-1, -1)
-    #     elif self.facing_direction == 90:
-    #         self._update_speeds(-1, 0)
-    #     elif self.facing_direction > 90 and self.facing_direction < 180:
-    #         self._update_speeds(-1, 1)
-    #     elif self.facing_direction == 180:
-    #         self._update_speeds(0, 1)
-    #     elif self.facing_direction > 180 and self.facing_direction < 270:
-    #         self._update_speeds(1, 1)
-    #     elif self.facing_direction == 270:
-    #         self._update_speeds(1, 0)
-    #     elif self.facing_direction > 270 and self.facing_direction < 360:
-    #         self._update_speeds(1, -1)
-    #     elif self.facing_direction == 360 or self.facing_direction == 0:
-    #         self._update_speeds(0, -1)
-    #
-    # def _update_speeds(self, x, y):
-    #     self._update_vspeed(y)
-    #     self._update_hspeed(x)
-    #
-    # # need to redo all this shit...
-    # def _update_vspeed(self, y):
-    #     # take an iterative apporach...
-    #     if y == 0:
-    #         return
-    #     if y > 0:
-    #         if self.prev_y >= 0:
-    #             self.vspeed += SPEED_GROWTH
-    #             if self.vspeed > MAX_SPEED:
-    #                 self.vspeed = MAX_SPEED
-    #             self.prev_y = y
-    #         elif self.prev_y < 0:
-    #             self.vspeed = BASE_SPEED
-    #             self.prev_y = y
-    #     elif y < 0:
-    #         if self.prev_y <= 0:
-    #             self.vspeed += SPEED_GROWTH
-    #             if self.vspeed > MAX_SPEED:
-    #                 self.vspeed = MAX_SPEED
-    #             self.prev_y = y
-    #         elif self.prev_y > 0:
-    #             self.vspeed = BASE_SPEED
-    #             self.prev_y = y
-    #
-    # def slowed(self, speed):
-    #     if speed < 1:
-    #         return True
-    #     return False
-    #
-    # def slow_down(self, speed):
-    #     if self.slowed(speed):
-    #         self.slowing_down = False
-    #         return speed, False
-    #     else:
-    #         speed *= .95
-    #         return speed, True
-    #
-    # # need to redo all this shit...
-    # def _update_hspeed(self, x):
-    #     if x == 0:
-    #         return
-    #     if x > 0:
-    #         if self.prev_x >= 0:
-    #             self.hspeed += SPEED_GROWTH
-    #             if self.hspeed > MAX_SPEED:
-    #                 self.hspeed = MAX_SPEED
-    #             self.prev_x = x
-    #         elif self.prev_x < 0:
-    #             self.hspeed = BASE_SPEED
-    #             self.prev_x = x
-    #     elif x < 0:
-    #         if self.prev_x <= 0:
-    #             self.hspeed += SPEED_GROWTH
-    #             if self.hspeed > MAX_SPEED:
-    #                 self.hspeed = MAX_SPEED
-    #             self.prev_x = x
-    #         elif self.prev_x > 0:
-    #             self.hspeed = BASE_SPEED
-    #             self.prev_x = x
-    #
-    # def _get_new_pos(self):
-    #     # old code..
-    #     if self.prev_trajectory.x == 0 and self.prev_trajectory.y == 0:
-    #         # this is the first time we do this shit...
-    #         rads = radians(self.moving_direction)
-    #         dx, dy = sin(rads) * (BASE_SPEED * self.hspeed), cos(rads) * (BASE_SPEED * self.vspeed)
-    #         self.pos.x -= dx
-    #         self.pos.y -= dy
-    #         self.prev_trajectory.x, self.prev_trajectory.y = dx, dy
-    #     else:
-    #         rads = radians(self.moving_direction)
-    #         dx, dy = sin(rads) * (BASE_SPEED * self.hspeed), cos(rads) * (BASE_SPEED * self.vspeed)
-    #
-    #         # this is the new direction we should move in... but by how much?
-    #         new_traj = Vector(dx, dy) + self.prev_trajectory
-    #         # should we normalize it...
-    #         new_traj = new_traj.normal()
-    #         new_traj = new_traj.mult(self.hspeed, self.vspeed)
-    #         self.pos.x -= new_traj.x
-    #         self.pos.y -= new_traj.y
-    #         self.prev_trajectory = new_traj
-    #
-    # def _check_inputs(self):
-    #     self.left, self.right = self.joystick.get_axes()
-    #
-    #     if self.left.x == 0 and self.left.y == 0:
-    #         if self.right.x != 0 or self.right.y != 0:
-    #             self._update_rotation()
-    #
-    #     if self.left.x != 0 or self.left.y != 0:
-    #         self.moving_direction = self.facing_direction
-    #         self._adjust_speed()
-    #         self.begun_movement = True
-
     def _resolve_direction_vector(self):
         # but we should only add acceleration if we are holding down the left stick..
         rads = radians(self.moving_direction)
-        dx, dy = sin(rads) * 1.1, cos(rads) * 1.1
-        self.acceleration.x, self.acceleration.y = dx, dy
+        dx, dy = sin(rads) * self.thrust, cos(rads) * self.thrust
+        self.engine_thrust.x, self.engine_thrust.y = -dx, -dy  # new directional thrust from engines
 
     def _get_new_pos(self):
         if self.impulse:
+            print("adding thrust from engines")
             self._resolve_direction_vector()
         else:
-            self.acceleration.x, self.acceleration.y = 0, 0
-        self.velocity.x = self.velocity.x + self.acceleration.x
-        self.velocity.y = self.velocity.y + self.acceleration.y
+            self.engine_thrust.x, self.engine_thrust.y = 0, 0
 
-        print("printing acceleration")
-        print(self.acceleration)
-        print("printing velocity")
-        print(self.velocity)
+        # calculate acceleration.x
+        print("printing engine thrust: ")
+        print(self.engine_thrust)
+        drag_force = Vector(
+            -DRAG_COEFFICIENT * self.velocity.x, -DRAG_COEFFICIENT * self.velocity.y)
+        print("printing drag_force: ")
+        print(drag_force)
 
-        self.pos.x = self.pos.x - self.velocity.x
-        self.pos.y = self.pos.y - self.velocity.y
+        self.acceleration.x = (self.engine_thrust.x + drag_force.x)/self.mass
+        self.acceleration.y = (self.engine_thrust.y + drag_force.y)/self.mass
 
-        # if velocity is greater than a certain number... then we should cap it...
-        self.velocity *= .98
-        if abs(self.velocity.x) < 1:
-            self.velocity.x = 0
-        if abs(self.velocity.y) < 1:
-            self.velocity.y = 0
+        self.velocity.x = self.velocity.x + (self.acceleration.x * CLOCK.get_elasped())
+        self.velocity.y = self.velocity.y + (self.acceleration.y * CLOCK.get_elasped())  # might have to subtract this value..
+
+        self.pos.x = self.pos.x + (0.5 * self.acceleration.x * CLOCK.get_elasped()**2) + (self.velocity.x * CLOCK.get_elasped())
+        self.pos.y = self.pos.y + (0.5 * self.acceleration.y * CLOCK.get_elasped()**2) + (self.velocity.y * CLOCK.get_elasped())
+
+    def _add_point(self, point):
+        self.point_list.insert(0, point)
+
+        if len(self.point_list) > 5:
+            del self.point_list[-1]
+
 
     def _check_inputs(self):
         self.left, self.right = self.joystick.get_axes()
@@ -224,7 +110,7 @@ class TestPilot(BaseObject):
                 self._update_rotation()
 
         if self.left.x != 0 or self.left.y != 0:
-            print("begun movement is true")
+            # print("begun movement is true")
             self.impulse = True
             self.moving_direction = self.facing_direction
             self.begun_movement = True
