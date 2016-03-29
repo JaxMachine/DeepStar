@@ -5,6 +5,7 @@ from objects.game_object import BaseObject
 from maths.vector import Vector, Circle
 from assets.asset_loader import load_sound
 from objects.bullet import Bullet
+import objects.player_utils
 
 from sprites.sprite_managers import GroupWithOwner
 
@@ -12,6 +13,10 @@ from constants import PLANET_MANAGER, BULLET_GROUP_MANAGER, SND_PLAYER_GOT_HIT, 
 
 HEALTH = 100
 BULLET_DMG = 10  # extract this out to bullet class?
+
+SPEED_GROWTH = 1
+SPEED_CHANGE = 3
+MAX_SPEED = 10
 
 
 class Player(BaseObject):
@@ -22,6 +27,7 @@ class Player(BaseObject):
         # assumes an already initialized controller
         # TODO: Create virtual controller - currently we rely on PS3 controller
         self.joystick = controller
+        self.land = False
         self.can_shoot = 1
         self.can_move = 1
 
@@ -29,7 +35,7 @@ class Player(BaseObject):
         self.begun_movement = False  # Could eliminate this by having the player already moving at start...
 
         # TODO: get rid of this line of code, since we will be using a rect mask for collisions...
-        self.radius = self.rect.x - self.rect.centerx
+        self.radius = self.rect.centerx - self.rect.x
 
         self.old_hspeed, self.old_vspeed = 0, 0
         self.hspeed, self.vspeed = 0, 0
@@ -92,22 +98,43 @@ class Player(BaseObject):
     def _get_new_pos(self):
         trajectory_vector = self.pos - self.trajectory
         new_pos = self.pos
-        new_pos += (trajectory_vector - new_pos).normal().mult(self.hspeed, self.vspeed)
+        new_pos += ((trajectory_vector - new_pos).normal()).mult(self.hspeed, self.vspeed)
         if not self._collide(new_pos):
-            print("we are not colliding ...")
             self.pos = new_pos
-        else:
-            print("we are colliding")
 
-    # should limit these speeds?
     def _update_hspeed(self, x):
         self.old_hspeed = self.hspeed
-        self.hspeed = self.hspeed + .2 if x > 0 else self.hspeed - .2
+        if self.hspeed > 0 and x < 0:
+            self.hspeed -= SPEED_CHANGE
+        elif self.hspeed > 0 and x > 0:
+            self.hspeed += SPEED_GROWTH
+            if self.hspeed > MAX_SPEED:
+                self.hspeed = MAX_SPEED
+        elif self.hspeed < 0 and x > 0:
+            self.hspeed += SPEED_CHANGE
+        elif self.hspeed < 0 and x < 0:
+            self.hspeed -= SPEED_GROWTH
+            if self.hspeed < -MAX_SPEED:
+                self.hspeed = -MAX_SPEED
+        else:
+            self.hspeed = self.hspeed + SPEED_GROWTH if x > 0 else self.hspeed - SPEED_GROWTH
 
-    # should limit these speeds?
     def _update_vspeed(self, y):
         self.old_vspeed = self.vspeed
-        self.vspeed = self.vspeed + .2 if y > 0 else self.vspeed - .2
+        if self.vspeed > 0 and y < 0:
+            self.vspeed -= SPEED_CHANGE
+        elif self.vspeed > 0 and y > 0:
+            self.vspeed += SPEED_GROWTH
+            if self.vspeed > MAX_SPEED:
+                self.vspeed = MAX_SPEED
+        elif self.vspeed < 0 and y > 0:
+            self.vspeed += SPEED_CHANGE
+        elif self.vspeed < 0 and y < 0:
+            self.vspeed -= SPEED_GROWTH
+            if self.vspeed < -MAX_SPEED:
+                self.vspeed = -MAX_SPEED
+        else:
+            self.vspeed = self.vspeed + SPEED_GROWTH if y > 0 else self.vspeed - SPEED_GROWTH
 
     def _update_trajectory(self, x, y):
         # code only needed for start of game (whiqle player is not moving...)
@@ -132,24 +159,46 @@ class Player(BaseObject):
 
         self.begun_movement = True
 
+    def _land(self):
+        closest_planet = PLANET_MANAGER.instance.get_closest(self)
+        if not self.land:
+            self.land = True
+            self.delete = True
+            objects.player_utils.create_player_on_planet(
+                "OnPlanetSprite1.png", self.joystick, self.pos.to_tuple(), closest_planet)
+
+    # for debug purposes
+    def _brake(self):
+        self.hspeed = 0
+        self.vspeed = 0
+        self.begun_movement = False
+
     def _check_inputs(self):
-        self.can_move -= 1
-
         self.left, self.right = self.joystick.get_axes()
-
-        if self.can_move == 0:
-            self.can_move = 5
-            if self.left.x != 0 or self.left.y != 0:
+        # clean up these if statements...
+        if self.left.x != 0 or self.left.y != 0:
+            if self.left.x != 0:
                 self._update_hspeed(self.left.x)
+            if self.left.y != 0:
                 self._update_vspeed(self.left.y)
-                self._update_trajectory(self.left.x, self.left.y)
+            self._update_trajectory(self.left.x, self.left.y)
+
+        if self.joystick.get_action_button():
+            self._land()
+        elif self.joystick.get_brake_button():  # for debug purposes
+            self._brake()
+        self.joystick.done_with_input()
+
+    # TODO: rename delete function to deleteMe to ensure name/variable don't collide
+    def deleteMe(self):
+        super(Player, self).delete()
+        SND_DEATH.play()
 
     def update(self):
         if self.delete:
-            super(Player, self).delete()
-            SND_DEATH.play()
-            self.reset()
-        if self._check_inputs() or self.begun_movement:
+            self.deleteMe()
+        self._check_inputs()
+        if self.begun_movement:
             self._get_new_pos()
             self.move()
         self._hit_with_bullet()

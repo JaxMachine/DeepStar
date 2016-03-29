@@ -9,21 +9,24 @@ pygame.init()
 from assets.asset_loader import load_image
 from assets.level_loader import load_level
 
-from constants import SCREEN_SIZE, OBJECT_MANAGER, SPRITE_MANAGER
+from camera.camera_manager import CAMERA
 
+from constants import OBJECT_MANAGER, SPRITE_MANAGER, SCREEN, BACKGROUND, BACKGROUND_POS, CLOCK, PLAYER_MANAGER
+
+from misc.paralax_background import move_and_draw_stars, init_stars
 
 class DeepStar:
 
     def __init__(self):
         pygame.mixer.pre_init(44100, -16, 2, 2048)
         pygame.init()
+
         pygame.joystick.init()
         self.joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
 
-        self.screen = pygame.display.set_mode(SCREEN_SIZE)
         pygame.display.set_caption('DeepStar')
 
-        self.clock = pygame.time.Clock()
+        self.clock = CLOCK
 
         if pygame.font:
             self.font = pygame.font.Font(None, 30)
@@ -37,8 +40,10 @@ class DeepStar:
         # set game constants
 
         # create the background, blit it to the screen...
-        self.background, self.background_pos = load_image("Map.png")
-        self.screen.blit(self.background, (0, 0))
+        # self.background, self.background_pos = load_image("Map.png")
+        # SCREEN.blit(BACKGROUND, (0, 0))
+        SCREEN.fill((0, 0, 0))
+        init_stars(SCREEN)
 
         load_level(self.joysticks)
 
@@ -46,21 +51,30 @@ class DeepStar:
 
     def update(self):
         for game_object in OBJECT_MANAGER.instance.list():
-            # for debug purposes...
-            f = open("log3", 'a')
-            sys.stdout = f
             game_object.update()
-            f.close()
-            sys.stdout = sys.__stdout__
 
     def draw(self):
-        rects = SPRITE_MANAGER.instance.draw(self.screen)
+        rects = SPRITE_MANAGER.instance.draw(SCREEN)
         pygame.display.update(rects)
+        pygame.display.flip()
 
     def run(self):
-        SPRITE_MANAGER.instance.clear(self.screen, self.background)
+        # SPRITE_MANAGER.instance.clear(SCREEN, BACKGROUND)
+
+        # for debug purposes...
+        f = open("log3", 'a')
+        sys.stdout = f
 
         while not self.exit:
+            SCREEN.fill((0, 0, 0))
+            move_and_draw_stars(SCREEN, CAMERA)
+            pygame.draw.rect(SCREEN, (255, 0, 0), CAMERA.inner_rect, 2)
+            # pygame.display.flip()
+            # SCREEN.blit(BACKGROUND, BACKGROUND_POS)
+
+            # SPRITE_MANAGER.instance.clear(SCREEN, BACKGROUND)
+            # print("Background pos")
+            # print(BACKGROUND_POS)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.exit = True
@@ -68,6 +82,10 @@ class DeepStar:
             self.update()
             self.draw()
 
+            # should call this once per game loop to ensure pygame talks to sys
+            pygame.event.pump()
+        f.close()
+        sys.stdout = sys.__stdout__
         pygame.quit()
 
 if __name__ == "__main__":

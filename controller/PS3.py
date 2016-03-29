@@ -18,6 +18,7 @@ class PS3_Controller:
         self.buttons = self.joystick.get_numbuttons()
         self.left_axis = [self.joystick.get_axis(0), self.joystick.get_axis(1)]
         self.right_axis = [self.joystick.get_axis(2), self.joystick.get_axis(3)]
+        self.updated_buttons = False
 
     def update_axis(self):
         if self.joystick is not None:
@@ -27,6 +28,33 @@ class PS3_Controller:
             except pygame.error:
                 print("Axis Error")
 
+    def update_buttons(self):
+        if self.joystick is not None:
+            try:
+                self.buttons = {
+                    'x': self.joystick.get_button(14),
+                    'o': self.joystick.get_button(13)
+                }
+                self.updated_buttons = True
+                return self.buttons
+            except pygame.error:
+                print("could not get joystick buttons")
+        else:
+            self.buttons = None
+
+    def get_action_button(self):
+        if not self.updated_buttons:
+            self.update_buttons()
+        return self.buttons['x']
+
+    def get_brake_button(self):
+        if not self.updated_buttons:
+            self.update_buttons()
+        return self.buttons['o']
+
+    def done_with_input(self):
+        self.updated_buttons = False
+
     def get_init(self):
         if self.joystick.get_init():
             return True
@@ -35,9 +63,18 @@ class PS3_Controller:
     def get_right_axis(self):
         self.update_axis()
         if self.right_axis is not None:
-            return self.right_axis
+            right = Vector(self.right_axis[0], self.right_axis[1])
+            return right
         else:
-            print("right axis is fucking garbage.")
+            raise pygame.error("right axis is 'None'")
+
+    def get_left_axis(self):
+        self.update_axis()
+        if self.left_axis is not None:
+            left = Vector(self.left_axis[0], self.left_axis[1])
+            return left
+        else:
+            raise pygame.error("left axis is 'None'")
 
     # returns axes input as vectors
     def get_axes(self):
