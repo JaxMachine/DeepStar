@@ -1,4 +1,8 @@
 import pygame
+from pygame import Rect
+from pygame.time import get_ticks
+
+from camera.camera_manager import CAMERA
 
 
 class LayeredDirty_Manager():
@@ -13,6 +17,18 @@ class LayeredDirty_Manager():
             LayeredDirty_Manager.instance = LayeredDirty_Manager.__LayeredDirty_Manager()
 
 
+class PlayerManager():
+    class __PlayerManager(pygame.sprite.LayeredDirty):
+        def __init__(self):
+            pygame.sprite.LayeredDirty.__init__(self)
+
+    instance = None
+
+    def __init__(self):
+        if not PlayerManager.instance:
+            PlayerManager.instance = PlayerManager.__PlayerManager()
+
+
 class PlanetGroup():
     class __PlanetGroup(pygame.sprite.Group):
         def __init__(self):
@@ -20,12 +36,12 @@ class PlanetGroup():
 
         def get_closest(self, other):
             closest, planet = None, None
-            print(self.sprites())
+            # print(self.sprites())
             for p in self.sprites():
                 # calculate distance between planet and other
                 dist = (p.pos - other.pos).length()
-                print("printing dist")
-                print(dist)
+                # print("printing dist")
+                # print(dist)
                 if closest is None:
                     closest = dist
                     planet = p

@@ -14,6 +14,7 @@ class Planet(BaseObject):
         PLANET_MANAGER.instance.add(self)
 
     def update(self):
+        self.move()
         bullets = pygame.sprite.spritecollide(
             self, BULLET_MANAGER.instance, False, pygame.sprite.collide_circle)
         for bullet in bullets:

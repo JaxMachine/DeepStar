@@ -9,8 +9,11 @@ pygame.init()
 from assets.asset_loader import load_image
 from assets.level_loader import load_level
 
-from constants import OBJECT_MANAGER, SPRITE_MANAGER, SCREEN, BACKGROUND, CLOCK
+from camera.camera_manager import CAMERA
 
+from constants import OBJECT_MANAGER, SPRITE_MANAGER, SCREEN, BACKGROUND, BACKGROUND_POS, CLOCK, PLAYER_MANAGER
+
+from misc.paralax_background import move_and_draw_stars, init_stars
 
 class DeepStar:
 
@@ -21,7 +24,6 @@ class DeepStar:
         pygame.joystick.init()
         self.joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
 
-        # self.screen = pygame.display.set_mode(SCREEN_SIZE)
         pygame.display.set_caption('DeepStar')
 
         self.clock = CLOCK
@@ -39,7 +41,9 @@ class DeepStar:
 
         # create the background, blit it to the screen...
         # self.background, self.background_pos = load_image("Map.png")
-        SCREEN.blit(BACKGROUND, (0, 0))
+        # SCREEN.blit(BACKGROUND, (0, 0))
+        SCREEN.fill((0, 0, 0))
+        init_stars(SCREEN)
 
         load_level(self.joysticks)
 
@@ -55,18 +59,29 @@ class DeepStar:
         pygame.display.flip()
 
     def run(self):
-        SPRITE_MANAGER.instance.clear(SCREEN, BACKGROUND)
+        # SPRITE_MANAGER.instance.clear(SCREEN, BACKGROUND)
 
         # for debug purposes...
         f = open("log3", 'a')
         sys.stdout = f
+
         while not self.exit:
+            SCREEN.fill((0, 0, 0))
+            move_and_draw_stars(SCREEN, CAMERA)
+            pygame.draw.rect(SCREEN, (255, 0, 0), CAMERA.inner_rect, 2)
+            # pygame.display.flip()
+            # SCREEN.blit(BACKGROUND, BACKGROUND_POS)
+
+            # SPRITE_MANAGER.instance.clear(SCREEN, BACKGROUND)
+            # print("Background pos")
+            # print(BACKGROUND_POS)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.exit = True
             self.clock.tick(50)
             self.update()
             self.draw()
+
             # should call this once per game loop to ensure pygame talks to sys
             pygame.event.pump()
         f.close()

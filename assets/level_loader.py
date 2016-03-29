@@ -1,9 +1,10 @@
 from objects.player import Player
 from objects.planets import Planet
 from objects.test_pilot import TestPilot
+from objects.camera_center import CameraCenter
 from controller.controller import init_controller
 
-from constants import HEIGHT
+from constants import WIDTH, HEIGHT
 
 
 def load_level(joysticks):
@@ -11,13 +12,16 @@ def load_level(joysticks):
 
     controllers = init_controller(joysticks)
     for controller in controllers:
-        player = TestPilot("ShipSprite.png", controller, (100, HEIGHT/2))
+        player = TestPilot("ShipSprite.png", controller, (WIDTH/2, HEIGHT/2))  # this is essential half of the level
         object_list.append(player)
+        camera_center = CameraCenter("Bullet.png", player)
+        object_list.append(camera_center)
 
     # seed_p = Planet("SeedPlanet_Solid.png", (1038, 144))
     # object_list.append(seed_p)
     # #
-    meat_p = Planet("MeatPlanet_Solid.png", (637, 339))
+    # meat_p = Planet("MeatPlanet_Solid.png", (637, 339))
+    meat_p = Planet("MeatPlanet_Solid.png", (WIDTH, HEIGHT))
     object_list.append(meat_p)
     #
     # quilt_p = Planet("QuiltPlanet_Solid.png", (229, 550))

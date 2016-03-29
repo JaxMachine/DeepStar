@@ -26,7 +26,7 @@ class PlayerOnPlanet(BaseObject):
 
     def deleteMe(self):
         super(PlayerOnPlanet, self).delete()
-        objects.player_utils.create_player("DeepStar_Player2.png", self.joystick, self.pos.to_tuple())
+        objects.player_utils.create_test_pilot("ShipSprite.png", self.joystick, self.pos.to_tuple())
 
     def _take_off(self):
         # get new vector from planet and player
