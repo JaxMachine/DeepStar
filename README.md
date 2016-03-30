@@ -1,9 +1,13 @@
 # DeepStar Documentation
 
+# Current State:
+
+https://youtu.be/ie4C534y8_4
   **Note:**
 
   03/02/2016:
   Currently won't run unless you have a PS3 controller plugged into a USB port. The current branch under construction is "virtual_controller". So if you want to see updates past this initial Hack Day presentation just view code under that branch.
+>>>>>>> d6f2ba913a0b4f68efa6bbe1f9890d6d2a1da61f
 
 # Overview
 

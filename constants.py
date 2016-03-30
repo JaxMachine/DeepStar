@@ -27,8 +27,14 @@ SND_PLAYER_GOT_HIT = load_sound("3049__starpause__k9dhhpulsekick.wav")
 SND_DEATH = load_sound("death.wav")
 
 # SND_BACKGROUND = load_music("com-truise-mind[mp3freex].mp3")
+SND_BACKGROUND = load_music("HOME - Odyssey - 03 Decay.mp3")
+BLACK = pygame.Color('black')
+GREEN = pygame.Color('green')
+BLUE = pygame.Color('blue')
+RED = pygame.Color('red')
 
 SCREEN = pygame.display.set_mode(SCREEN_SIZE)
+
 BACKGROUND, BACKGROUND_POS = load_image("big_background.jpg")
 
 PLAYERS = [True, True]
