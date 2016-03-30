@@ -18,6 +18,17 @@ class Camera(object):
         new_rect.centery = new_rect.centery - self.state.y
         return new_rect
 
+    def apply_points(self, point_list):
+        new = []
+        for point in point_list:
+            new_point = (point[0] + self.state.x,  point[1] - self.state.y)
+            new.append(new_point)
+        return new
+
+    def apply_point(self, point):
+        new = (point[0] + self.state.x, point[1] - self.state.y)
+        return new
+
     def update(self, target):
         temp = self.camera_func(self, target.rect, self.inner_rect)
         if temp is not None:

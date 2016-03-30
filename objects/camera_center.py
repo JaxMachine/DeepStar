@@ -16,7 +16,7 @@ class CameraCenter(BaseObject):
         # self.dirty = 0
 
     def _update_pos(self):
-        direction = self.target.get_Player_Direction()
+        direction = self.target.getPlayerDirection()
         spawn_distance = -100
         self.pos = self.target.pos + (direction * spawn_distance)
 
