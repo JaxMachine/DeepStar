@@ -6,14 +6,15 @@ import sys
 pygame.mixer.pre_init(44100, -16, 2, 2048)
 pygame.init()
 
-from assets.asset_loader import load_image
 from assets.level_loader import load_level
 
 from camera.camera_manager import CAMERA
+from objects.test_animation import TestAnimation
 
-from constants import OBJECT_MANAGER, SPRITE_MANAGER, SCREEN, BACKGROUND, BACKGROUND_POS, CLOCK, PLAYER_MANAGER
+from constants import OBJECT_MANAGER, SPRITE_MANAGER, SCREEN, CLOCK
 
 from misc.paralax_background import move_and_draw_stars, init_stars
+
 
 class DeepStar:
 
@@ -27,6 +28,7 @@ class DeepStar:
         pygame.display.set_caption('DeepStar')
 
         self.clock = CLOCK
+        # self.test = TestAnimation(pos=(400, 400))
 
         if pygame.font:
             self.font = pygame.font.Font(None, 30)
@@ -52,6 +54,7 @@ class DeepStar:
     def update(self):
         for game_object in OBJECT_MANAGER.instance.list():
             game_object.update()
+        # self.test.update()
 
     def draw(self):
         rects = SPRITE_MANAGER.instance.draw(SCREEN)

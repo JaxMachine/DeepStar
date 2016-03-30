@@ -1,6 +1,6 @@
 import pygame
 
-from objects.game_object import BaseObject
+from objects.game_object import BaseObject, BaseAnimatedObject
 from objects.trail import Trail_Manager, Trail
 import objects.player_utils
 
@@ -18,10 +18,12 @@ MASS = 250
 THRUST = .5
 
 
-class TestPilot(BaseObject):
+class TestPilot(BaseAnimatedObject):
 
     def __init__(self, sprite_name, controller, pos):
-        BaseObject.__init__(self, sprite_name, pos, SPRITE_MANAGER.instance)
+        BaseAnimatedObject.__init__(
+            self, name=sprite_name, rows=3, cols=1, pos=pos,
+            sprite_group=SPRITE_MANAGER.instance)
 
         self.old_image = self.image
         self.joystick = controller
@@ -151,6 +153,8 @@ class TestPilot(BaseObject):
         super(TestPilot, self).delete()
 
     def update(self):
+        self.cycle()
+        self._rotate(self.facing_direction)
         if not self.first_pass:
             if self.delete:
                 self.deleteMe()

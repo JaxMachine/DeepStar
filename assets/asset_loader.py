@@ -1,4 +1,5 @@
 import os
+import pyganim
 import pygame
 from pygame.compat import geterror
 
@@ -24,6 +25,20 @@ def load_image(name, colorkey=None):
             colorkey = image.get_at((0, 0))
         image.set_colorkey(colorkey, pygame.RLEACCEL)
     return image, image.get_rect()
+
+
+def load_sprite_sheet(name, rows, cols, colorkey=None):
+    filename = os.path.join(data_dir, name)
+
+    all_images = pyganim.getImagesFromSpriteSheet(filename, rows=rows, cols=cols)
+
+    for image in all_images:
+        image = image.convert()
+        if colorkey is not None:
+            if colorkey is -1:
+                colorkey = image.get_at((0, 0))
+        image.set_colorkey(colorkey, pygame.RLEACCEL)
+    return all_images
 
 
 def load_sound(name):
