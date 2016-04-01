@@ -15,7 +15,6 @@ class BaseAnimatedObject(BaseAnimatedSprite):
         self.rect.center = pos
 
     def move(self):
-        # self.cycle()
         self.rect.centerx, self.rect.centery = self.pos.x, self.pos.y
         offset = CAMERA.apply(self.rect)
         self.dirty = 1
@@ -35,13 +34,14 @@ class BaseObject(BaseSprite):
     def move(self):
         self.rect.centerx = self.pos.x
         self.rect.centery = self.pos.y
-        if self.name == "Bullet.png":
-            CAMERA.update(self)
+        # if self.name == "Bullet.png":
+        #     CAMERA.update(self)
         offset = CAMERA.apply(self.rect)
         self.rect.x = offset.x
         self.rect.y = offset.y
-        if self.name != "Bullet.png":
-            self.dirty = 1
+        # if self.name != "Bullet.png":
+            # self.dirty = 1
+        self.dirty = 1
 
     def delete(self, remove=True):
         super(BaseObject, self).delete()

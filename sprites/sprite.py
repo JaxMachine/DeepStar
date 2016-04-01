@@ -31,13 +31,21 @@ class BaseAnimatedSprite(pygame.sprite.DirtySprite):
         if sprite_group is not None:
             sprite_group.add(self)
 
+        self.descend = False
+
     def delete(self):
         self.kill()
 
     def cycle(self):
-        self.index += 1
+        if not self.descend:
+            self.index += 1
+        else:
+            self.index -= 1
         # self.image, self.rect = self.images[self.index], self.images[self.index].get_rect()
         self.old_image = self.images[self.index]
-        if self.index + 1 == len(self.images):
-            self.index = -1
+        if self.descend is False and self.index + 1 == len(self.images):
+            # self.index = -1
+            self.descend = True
+        elif self.descend is True and self.index -1 == -1:
+            self.descend = False
         # self.dirty = 1

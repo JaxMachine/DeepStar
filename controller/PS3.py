@@ -33,7 +33,8 @@ class PS3_Controller:
             try:
                 self.buttons = {
                     'x': self.joystick.get_button(14),
-                    'o': self.joystick.get_button(13)
+                    'o': self.joystick.get_button(13),
+                    'r2': self.joystick.get_button(9)
                 }
                 self.updated_buttons = True
                 return self.buttons
@@ -46,6 +47,11 @@ class PS3_Controller:
         if not self.updated_buttons:
             self.update_buttons()
         return self.buttons['x']
+
+    def get_shoot_button(self):
+        if not self.update_buttons:
+            self.update_buttons()
+        return self.buttons['r2']
 
     def get_brake_button(self):
         if not self.updated_buttons:

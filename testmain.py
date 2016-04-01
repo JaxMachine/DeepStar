@@ -40,10 +40,6 @@ class DeepStar:
     # initialize game objects, etc..
     def init_game(self):
         # set game constants
-
-        # create the background, blit it to the screen...
-        # self.background, self.background_pos = load_image("Map.png")
-        # SCREEN.blit(BACKGROUND, (0, 0))
         SCREEN.fill((0, 0, 0))
         init_stars(SCREEN)
 
@@ -78,6 +74,8 @@ class DeepStar:
             # SPRITE_MANAGER.instance.clear(SCREEN, BACKGROUND)
             # print("Background pos")
             # print(BACKGROUND_POS)
+            pygame.draw.rect(SCREEN, (255, 0, 0), CAMERA.inner_rect, 1)
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.exit = True

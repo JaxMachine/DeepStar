@@ -4,6 +4,8 @@ SCREEN_SIZE = WIDTH, HEIGHT = 1280, 720
 HALF_WIDTH = int(WIDTH/2)
 HALF_HEIGHT = int(HEIGHT/2)
 
+# from constants import SCREEN
+
 
 class Camera(object):
 
@@ -33,4 +35,3 @@ class Camera(object):
         temp = self.camera_func(self, target.rect, self.inner_rect)
         if temp is not None:
             self.state = temp
-        # self.state = self.camera_func(self.state, target.rect)

@@ -1,13 +1,19 @@
 import pygame
 
-from objects.game_object import BaseObject, BaseAnimatedObject
+from objects.game_object import BaseAnimatedObject
 from objects.trail import Trail_Manager, Trail
 import objects.player_utils
 
+from objects.bullet import PinkBullet
+
+from random import randint
 
 from maths.vector import Vector
 
-from constants import SPRITE_MANAGER, CLOCK, PLANET_MANAGER
+from constants import SPRITE_MANAGER, CLOCK, PLANET_MANAGER, SND_THRUST, SND_SHOOT
+
+from objects.camera_center import CameraCenter
+from camera.camera_manager import CAMERA
 
 from math import cos, sin, radians
 
@@ -22,22 +28,26 @@ class TestPilot(BaseAnimatedObject):
 
     def __init__(self, sprite_name, controller, pos):
         BaseAnimatedObject.__init__(
-            self, name=sprite_name, rows=3, cols=1, pos=pos,
+            self, name=sprite_name, rows=9, cols=1, pos=pos,
             sprite_group=SPRITE_MANAGER.instance)
 
+        # old image is used for quicker "rotations" of images, also stops the image from
+        # being distorted when multiple images are rotated over and over agian.
         self.old_image = self.image
         self.joystick = controller
+
         # in degrees, 0 is top, 90 is left, 180 is down, 270 is right
         self.facing_direction = 0
         self.moving_direction = 0
+        self.bullet_count = 0
         self._rotate(self.facing_direction)
 
         self.radius = self.rect.centerx - self.rect.x
         self.begun_movement = False
+        self.play_thrust = False
 
+        # current trail could also be kicked out to trail manager, I think...
         self.current_trail = Trail(color1=(0, 255, 230), color2=(255, 0, 230), color3=(0, 255, 0))
-        # self.trail2 = Trail(None, (255, 0, 230))
-        # self.trail3 = Trail(None, (0, 255, 0))
         self.trails = Trail_Manager()
 
         self.velocity = Vector(0, 0)
@@ -45,12 +55,26 @@ class TestPilot(BaseAnimatedObject):
         self.impulse = False
         self.land = False
 
+        # this isn't the proper place for cycle logic. Should kick this out somehow.
+        self.can_cycle = -1
+
         # ship properties..
         self.mass = MASS
         self.thrust = THRUST
         self.engine_thrust = Vector(0, 0)
         self.first_pass = True
 
+        self.camera_center = CameraCenter("Bullet.png", self)
+
+    # "public functions"
+    def IsMoving(self):
+        return self.impulse
+
+    def getPlayerDirection(self):
+        rads = radians(self.facing_direction)
+        return Vector(sin(rads), cos(rads)).normal()
+
+    # "private" functions
     def _rotate(self, angle):
         self.image = pygame.transform.rotate(self.old_image, angle)
         self.rect = self.image.get_rect()  # move rect to current pos?
@@ -100,10 +124,7 @@ class TestPilot(BaseAnimatedObject):
             radius_to_use = self.radius + 75
             rads = radians(self.facing_direction)
             dx, dy = (sin(rads) * radius_to_use) + self.pos.x, (cos(rads) * radius_to_use) + self.pos.y
-
             self.current_trail.add_point((dx, dy), 1)
-
-
 
             rads2 = radians(self.facing_direction + 30)
             dx2, dy2 = (sin(rads2) * radius_to_use) + self.pos.x, (cos(rads2) * radius_to_use) + self.pos.y
@@ -118,10 +139,6 @@ class TestPilot(BaseAnimatedObject):
             self.trails.add_trail(self.current_trail)
             self.current_trail = Trail(color1=(0, 255, 230), color2=(255, 0, 230), color3=(0, 255, 0))
         self.trails.draw()
-
-    def getPlayerDirection(self):
-        rads = radians(self.facing_direction)
-        return Vector(sin(rads), cos(rads)).normal()
 
     def _land(self):
         closest_planet = PLANET_MANAGER.instance.get_closest(self)
@@ -142,18 +159,37 @@ class TestPilot(BaseAnimatedObject):
             self.impulse = True
             self.moving_direction = self.facing_direction
             self.begun_movement = True
+            if self.play_thrust is False:
+                SND_THRUST.play()
+                self.play_thrust = True
         else:
             self.impulse = False
+            self.play_thrust = False
 
         if self.joystick.get_action_button():
             self._land()
+        if self.joystick.get_shoot_button():
+            self.bullet_count -= 1
+            if self.bullet_count < 0:
+                radius_to_use = self.radius
+                rads = radians(self.facing_direction + 180)
+                dx, dy = (sin(rads) * radius_to_use) + self.pos.x, (cos(rads) * radius_to_use) + self.pos.y
+
+                PinkBullet(randint(self.facing_direction-13, self.facing_direction+13), (dx, dy))
+                SND_SHOOT.play()
+                self.bullet_count = 2
         self.joystick.done_with_input()
 
     def deleteMe(self):
         super(TestPilot, self).delete()
 
     def update(self):
-        self.cycle()
+        # this cycle logic should be pushed into a separate function or something...
+        self.can_cycle += 1
+        if self.can_cycle == 10:
+            self.cycle()
+            self.can_cycle = -1
+        # rotate logic is fucked up also due to cycles happening in animation...
         self._rotate(self.facing_direction)
         if not self.first_pass:
             if self.delete:
@@ -162,5 +198,4 @@ class TestPilot(BaseAnimatedObject):
             if self.begun_movement:
                 self._get_new_pos()
         self.first_pass = False
-
         self.move()
