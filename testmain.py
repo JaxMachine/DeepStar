@@ -6,14 +6,15 @@ import sys
 pygame.mixer.pre_init(44100, -16, 2, 2048)
 pygame.init()
 
-from assets.asset_loader import load_image
 from assets.level_loader import load_level
 
 from camera.camera_manager import CAMERA
+from objects.test_animation import TestAnimation
 
-from constants import OBJECT_MANAGER, SPRITE_MANAGER, SCREEN, BACKGROUND, BACKGROUND_POS, CLOCK, PLAYER_MANAGER
+from constants import OBJECT_MANAGER, SPRITE_MANAGER, SCREEN, CLOCK
 
 from misc.paralax_background import move_and_draw_stars, init_stars
+
 
 class DeepStar:
 
@@ -27,6 +28,7 @@ class DeepStar:
         pygame.display.set_caption('DeepStar')
 
         self.clock = CLOCK
+        # self.test = TestAnimation(pos=(400, 400))
 
         if pygame.font:
             self.font = pygame.font.Font(None, 30)
@@ -38,10 +40,6 @@ class DeepStar:
     # initialize game objects, etc..
     def init_game(self):
         # set game constants
-
-        # create the background, blit it to the screen...
-        # self.background, self.background_pos = load_image("Map.png")
-        # SCREEN.blit(BACKGROUND, (0, 0))
         SCREEN.fill((0, 0, 0))
         init_stars(SCREEN)
 
@@ -52,6 +50,7 @@ class DeepStar:
     def update(self):
         for game_object in OBJECT_MANAGER.instance.list():
             game_object.update()
+        # self.test.update()
 
     def draw(self):
         rects = SPRITE_MANAGER.instance.draw(SCREEN)
@@ -68,13 +67,15 @@ class DeepStar:
         while not self.exit:
             SCREEN.fill((0, 0, 0))
             move_and_draw_stars(SCREEN, CAMERA)
-            # pygame.draw.rect(SCREEN, (255, 0, 0), CAMERA.inner_rect, 2)
+            pygame.draw.rect(SCREEN, (255, 0, 0), CAMERA.inner_rect, 2)
             # pygame.display.flip()
             # SCREEN.blit(BACKGROUND, BACKGROUND_POS)
 
             # SPRITE_MANAGER.instance.clear(SCREEN, BACKGROUND)
             # print("Background pos")
             # print(BACKGROUND_POS)
+            # pygame.draw.rect(SCREEN, (255, 0, 0), CAMERA.inner_rect, 1)
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.exit = True

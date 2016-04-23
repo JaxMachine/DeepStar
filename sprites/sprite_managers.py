@@ -1,8 +1,4 @@
 import pygame
-from pygame import Rect
-from pygame.time import get_ticks
-
-from camera.camera_manager import CAMERA
 
 
 class LayeredDirty_Manager():

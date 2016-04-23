@@ -4,13 +4,15 @@ SCREEN_SIZE = WIDTH, HEIGHT = 1280, 720
 HALF_WIDTH = int(WIDTH/2)
 HALF_HEIGHT = int(HEIGHT/2)
 
+# from constants import SCREEN
+
 
 class Camera(object):
 
     def __init__(self, camera_func, width, height):
         self.camera_func = camera_func
         self.state = pygame.Rect(0, 0, width, height)
-        self.inner_rect = pygame.Rect(HALF_WIDTH/2, HALF_HEIGHT/2, HALF_WIDTH, HALF_HEIGHT)
+        self.inner_rect = pygame.Rect(HALF_WIDTH/1.5, HALF_HEIGHT/1.5, HALF_WIDTH/2, HALF_HEIGHT/2)
 
     def apply(self, rect):
         new_rect = rect.copy()
@@ -34,3 +36,4 @@ class Camera(object):
         if temp is not None:
             self.state = temp
         # self.state = self.camera_func(self.state, target.rect)
+        # self.state = self.camera_func(self.state, target)

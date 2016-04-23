@@ -5,6 +5,7 @@ from constants import SCREEN, BLACK, BLUE
 from camera.camera_manager import CAMERA
 
 ALPHA_RATE = 2
+TRAIL_LENGTH = 20
 
 
 class Trail_Manager(object):
@@ -28,6 +29,8 @@ class Trail(object):
         self.surface.set_colorkey(BLACK)
         self.alpha = 255
         self.p_list1, self.p_list2, self.p_list3 = [], [], []
+        self.init_color = (246, 255, 102)
+        self.init_color_length = 10
         self.color1, self.color2, self.color3 = color1, color2, color3
 
     def add_point(self, point, list_number):
@@ -40,11 +43,11 @@ class Trail(object):
         else:
             print("FUCKING ERROR")
 
-        if len(self.p_list1) > 20:
+        if len(self.p_list1) > TRAIL_LENGTH:
             del self.p_list1[0]
-        if len(self.p_list2) > 20:
+        if len(self.p_list2) > TRAIL_LENGTH:
             del self.p_list2[0]
-        if len(self.p_list3) > 20:
+        if len(self.p_list3) > TRAIL_LENGTH:
             del self.p_list3[0]
 
     def length(self, list_number):
@@ -63,15 +66,20 @@ class Trail(object):
     def draw(self, degrade_alpha):
         if len(self.p_list1) > 1 and len(self.p_list2) > 1 and len(self.p_list3) > 1:
             self.surface.fill(BLACK)
+            self.init_color_length -= 1
 
             p_list1 = CAMERA.apply_points(self.p_list1)
-            pygame.draw.aalines(self.surface, (self.color1), False, p_list1, 1)
-
             p_list2 = CAMERA.apply_points(self.p_list2)
-            pygame.draw.aalines(self.surface, (self.color2), False, p_list2, 1)
-
             p_list3 = CAMERA.apply_points(self.p_list3)
-            pygame.draw.aalines(self.surface, (self.color3), False, p_list3, 1)
+
+            if self.init_color_length < 0:
+                pygame.draw.aalines(self.surface, (self.color1), False, p_list1, 1)
+                pygame.draw.aalines(self.surface, (self.color2), False, p_list2, 1)
+                pygame.draw.aalines(self.surface, (self.color3), False, p_list3, 1)
+            else:
+                pygame.draw.aalines(self.surface, (self.init_color), False, p_list1, 1)
+                pygame.draw.aalines(self.surface, (self.init_color), False, p_list2, 1)
+                pygame.draw.aalines(self.surface, (self.init_color), False, p_list3, 1)
 
             self.surface.set_alpha(self.alpha)
             if degrade_alpha:
