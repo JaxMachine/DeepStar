@@ -67,14 +67,14 @@ class DeepStar:
         while not self.exit:
             SCREEN.fill((0, 0, 0))
             move_and_draw_stars(SCREEN, CAMERA)
-            # pygame.draw.rect(SCREEN, (255, 0, 0), CAMERA.inner_rect, 2)
+            pygame.draw.rect(SCREEN, (255, 0, 0), CAMERA.inner_rect, 2)
             # pygame.display.flip()
             # SCREEN.blit(BACKGROUND, BACKGROUND_POS)
 
             # SPRITE_MANAGER.instance.clear(SCREEN, BACKGROUND)
             # print("Background pos")
             # print(BACKGROUND_POS)
-            pygame.draw.rect(SCREEN, (255, 0, 0), CAMERA.inner_rect, 1)
+            # pygame.draw.rect(SCREEN, (255, 0, 0), CAMERA.inner_rect, 1)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

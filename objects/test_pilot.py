@@ -74,6 +74,13 @@ class TestPilot(BaseAnimatedObject):
         rads = radians(self.facing_direction)
         return Vector(sin(rads), cos(rads)).normal()
 
+    def getVelocity(self):
+        return Vector(self.velocity.x, self.velocity.y)
+
+    def getPosition(self):
+        return Vector(self.pos.x, self.pos.y)
+        # return self.pos
+
     # "private" functions
     def _rotate(self, angle):
         self.image = pygame.transform.rotate(self.old_image, angle)
@@ -99,6 +106,14 @@ class TestPilot(BaseAnimatedObject):
         self.engine_thrust.x, self.engine_thrust.y = -dx, -dy  # new directional thrust from engines
 
     def _get_new_pos(self):
+        dx, dy = self.calc_new_position(self.pos)
+        self.pos.x, self.pos.y = dx, dy
+        self._update_trails()
+
+    def get_elasped(self):
+        return CLOCK.get_elasped()
+
+    def calc_new_position(self, cur_pos):
         if self.impulse:
             self._resolve_direction_vector()
         else:
@@ -114,10 +129,9 @@ class TestPilot(BaseAnimatedObject):
         self.velocity.x = self.velocity.x + (self.acceleration.x * CLOCK.get_elasped())
         self.velocity.y = self.velocity.y + (self.acceleration.y * CLOCK.get_elasped())  # might have to subtract this value..
 
-        self.pos.x = self.pos.x + (0.5 * self.acceleration.x * CLOCK.get_elasped()**2) + (self.velocity.x * CLOCK.get_elasped())
-        self.pos.y = self.pos.y + (0.5 * self.acceleration.y * CLOCK.get_elasped()**2) + (self.velocity.y * CLOCK.get_elasped())
-
-        self._update_trails()
+        dx = (0.5 * self.acceleration.x * CLOCK.get_elasped()**2) + (self.velocity.x * CLOCK.get_elasped())
+        dy = (0.5 * self.acceleration.y * CLOCK.get_elasped()**2) + (self.velocity.y * CLOCK.get_elasped())
+        return cur_pos.x + dx, cur_pos.y + dy
 
     def _update_trails(self):
         if self.impulse:
@@ -182,6 +196,15 @@ class TestPilot(BaseAnimatedObject):
 
     def deleteMe(self):
         super(TestPilot, self).delete()
+
+    # def move(self):
+    #     self.rect.centerx = self.pos.x
+    #     self.rect.centery = self.pos.y
+    #     CAMERA.update(self)
+    #     offset = CAMERA.apply(self.rect)
+    #     self.rect.x = offset.x
+    #     self.rect.y = offset.y
+    #     self.dirty = 1
 
     def update(self):
         # this cycle logic should be pushed into a separate function or something...

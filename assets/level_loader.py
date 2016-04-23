@@ -12,9 +12,9 @@ def load_level(joysticks):
 
     controllers = init_controller(joysticks)
     for controller in controllers:
-        player = TestPilot("shipsprites.png", controller, (WIDTH/2, HEIGHT/2))  # this is essential half of the level
+        player = TestPilot("shipsprites3.png", controller, (WIDTH/2, HEIGHT/2))  # this is essential half of the level
         # object_list.append(player)
-        CameraCenter("Bullet.png", player)
+        # CameraCenter("Bullet.png", player)
         # object_list.append(camera_center)
 
     # test = TestAnimation()
