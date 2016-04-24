@@ -1,6 +1,6 @@
 # interface for virtual controller
-from keyboard_controller import KeyboardController
-from PS3 import PS3_Controller
+from controller.keyboardController import KeyboardController
+from controller.PS3 import PS3_Controller
 
 
 def init_controller(joysticks):
