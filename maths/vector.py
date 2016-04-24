@@ -21,6 +21,9 @@ class Vector:
     def __mul__(self, scalar):
         return Vector(self.x * scalar, self.y * scalar)
 
+    def __div__(self, scaler):
+        return Vector(self.x / scalar, self.y / scalar)
+
     def mult(self, scalarx, scalary):
         return Vector(self.x * scalarx, self.y * scalary)
 
@@ -37,7 +40,13 @@ class Vector:
         return ((self.x ** 2) + (self.y ** 2)) ** 0.5
 
     def normal(self):
-        return self / self.length()
+        # print('printing self')
+        # print(self)
+        # print('printing length')
+        # print(self.length())
+        results = Vector(self.x / self.length(), self.y / self.length())
+        return results
+        # return self / self.length()
 
 
 class Circle:

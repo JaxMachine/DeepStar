@@ -119,6 +119,9 @@ class TestPilot(BaseObject):
 
     def getPlayerDirection(self):
         rads = radians(self.facing_direction)
+        print(rads)
+        V = Vector(sin(rads), cos(rads))
+        print(V)
         return Vector(sin(rads), cos(rads)).normal()
 
     def _land(self):
